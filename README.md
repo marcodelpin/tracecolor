@@ -1,4 +1,4 @@
-# MLog
+# TraceColor
 
 A lightweight, colorized Python logger with TRACE level support.
 
@@ -12,13 +12,13 @@ A lightweight, colorized Python logger with TRACE level support.
 ## Installation
 
 ```bash
-pip install mlog
+pip install tracecolor
 ```
 
 ## Usage
 
 ```python
-from mlog import MLog
+from tracecolor import MLog
 
 # Create a logger
 logger = MLog(__name__)

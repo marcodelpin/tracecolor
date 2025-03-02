@@ -1,6 +1,6 @@
 import pytest
 import logging
-from mlog import MLog
+from tracecolor import MLog
 import io
 import sys
 import re

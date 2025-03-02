@@ -1,3 +1,25 @@
+[project]
+name = "tracecolor"
+version = "0.1.0"
+authors = [
+  { name="Marco Del Pin", email="marco.delpin@gmail.com" },
+]
+description = "A lightweight, colorized Python logger with TRACE level support."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "colorlog>=6.0.0",
+]
+license = { file = "LICENSE" }
+
+[project.urls]
+Homepage = "https://github.com/marcodelpin/tracecolor"
+Issues = "https://github.com/marcodelpin/tracecolor/issues"
+
 [build-system]
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
