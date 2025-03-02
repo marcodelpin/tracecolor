@@ -11,7 +11,7 @@ setup(
     description="A lightweight colorized logger with TRACE level support",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/mlog",
+    url="https://github.com/marcodelpin/mlog",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
