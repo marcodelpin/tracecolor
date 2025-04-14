@@ -2,12 +2,7 @@ import logging
 import colorlog
 import time
 
-class _GrayLogFormatter(logging.Formatter):
-    def format(self, record):
-        # Prefix the message with the ANSI code for gray and suffix with reset
-        original_message = super().format(record)
-        gray_message = f'\033[90m{original_message}\033[0m'  # 90 is bright black, which looks gray
-        return gray_message
+# Removed unused _GrayLogFormatter class
 
 class MLog(logging.Logger):
     """
@@ -32,13 +27,15 @@ class MLog(logging.Logger):
     logger.critical("Critical error")
     ```
     """
-    TRACE_LEVEL = 15  # Define TRACE level (higher than DEBUG)
+    TRACE_LEVEL = 5  # TRACE below DEBUG (10)
+    SLOW_TRACE_LEVEL = 15  # SLOW_TRACE between DEBUG (10) and INFO (20)
 
     def __init__(self, name):
         super().__init__(name)
 
-        # Add custom TRACE level
+        # Register custom levels
         logging.addLevelName(self.TRACE_LEVEL, "TRACE")
+        logging.addLevelName(self.SLOW_TRACE_LEVEL, "SLOW_TRACE")
 
         # Set up color formatter for standard log levels
         formatter = colorlog.ColoredFormatter(
@@ -51,6 +48,7 @@ class MLog(logging.Logger):
                 'ERROR': 'red',
                 'CRITICAL': 'bold_red',
                 'TRACE': 'white',
+                'SLOW_TRACE': 'white',
             }
         )
 
@@ -68,16 +66,41 @@ class MLog(logging.Logger):
 
     def trace(self, message, *args, **kwargs):
         """Log a message with severity 'TRACE'."""
-        if self.isEnabledFor(self.TRACE_LEVEL):
+        if self.level <= self.TRACE_LEVEL:
+            self.log(self.TRACE_LEVEL, message, *args, **kwargs)
+
+    def slow_trace(self, message, *args, **kwargs):
+        """Log a message with severity 'STRACE' (for very frequent logs)."""
+        if self.level <= self.SLOW_TRACE_LEVEL:
             current_time = time.time()
             # Rate-limiting: Log only if a second has passed since the last log
             if current_time - self._last_trace_log_time >= 1:
                 self._last_trace_log_time = current_time
-                self.log(self.TRACE_LEVEL, message, *args, **kwargs)
+                self.log(self.SLOW_TRACE_LEVEL, message, *args, **kwargs)
+    
+    def debug(self, message, *args, **kwargs):
+        """Log a message with severity 'DEBUG'."""
+        if self.level <= logging.DEBUG:
+            super().debug(message, *args, **kwargs)
+    
+    def info(self, message, *args, **kwargs):
+        """Log a message with severity 'INFO'."""
+        if self.level <= logging.INFO:
+            super().info(message, *args, **kwargs)
+    
+    def warning(self, message, *args, **kwargs):
+        """Log a message with severity 'WARNING'."""
+        if self.level <= logging.WARNING:
+            super().warning(message, *args, **kwargs)
+    
+    def error(self, message, *args, **kwargs):
+        """Log a message with severity 'ERROR'."""
+        if self.level <= logging.ERROR:
+            super().error(message, *args, **kwargs)
+    
+    def critical(self, message, *args, **kwargs):
+        """Log a message with severity 'CRITICAL'."""
+        if self.level <= logging.CRITICAL:
+            super().critical(message, *args, **kwargs)
 
-# Monkey-patch the logging module to add TRACE level methods
-def trace(self, message, *args, **kwargs):
-    if self.isEnabledFor(MLog.TRACE_LEVEL):
-        self._log(MLog.TRACE_LEVEL, message, args, **kwargs)
-
-logging.Logger.trace = trace
+# Monkey-patching removed as methods are defined in MLog class
