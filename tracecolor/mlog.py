@@ -2,8 +2,6 @@ import logging
 import colorlog
 import time
 
-# Removed unused _GrayLogFormatter class
-
 class MLog(logging.Logger):
     """
     Enhanced logger with colorized output and TRACE level.
