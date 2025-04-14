@@ -1,6 +1,6 @@
 [project]
 name = "tracecolor"
-version = "0.3.1"
+version = "0.3.2"
 authors = [
   { name="Marco Del Pin", email="marco.delpin@gmail.com" },
 ]
