@@ -32,7 +32,7 @@ class MLog(logging.Logger):
     logger.critical("Critical error")
     ```
     """
-    TRACE_LEVEL = 5  # Define TRACE level
+    TRACE_LEVEL = 15  # Define TRACE level (higher than DEBUG)
 
     def __init__(self, name):
         super().__init__(name)
