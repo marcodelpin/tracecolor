@@ -17,8 +17,8 @@ def test_log_levels():
     logger = MLog("test_logger")
     assert logger.TRACE_LEVEL == 5
     assert logging.getLevelName(logger.TRACE_LEVEL) == "TRACE"
-    assert logger.SLOW_TRACE_LEVEL == 15
-    assert logging.getLevelName(logger.SLOW_TRACE_LEVEL) == "SLOW_TRACE"
+    assert logger.PROGRESS_LEVEL == 15
+    assert logging.getLevelName(logger.PROGRESS_LEVEL) == "PROGRESS"
     
     # Test standard levels still work
     assert logger.level <= logging.DEBUG
@@ -54,8 +54,8 @@ def test_log_output(capsys):
     finally:
         sys.stdout = old_stdout
 
-def test_slow_trace_rate_limiting():
-    """Test that slow_trace messages are rate-limited."""
+def test_progress_rate_limiting():
+    """Test that progress messages are rate-limited."""
     logger = MLog("test_rate_limit")
     
     # Capture all handler calls
@@ -68,16 +68,16 @@ def test_slow_trace_rate_limiting():
     mock_handler = MockHandler()
     logger.handlers = [mock_handler]  # Replace the default handler
     
-    # Two immediate slow_trace calls should result in only one log
-    logger.slow_trace("First slow_trace message")
-    logger.slow_trace("Second slow_trace message")
+    # Two immediate progress calls should result in only one log
+    logger.progress("First progress message")
+    logger.progress("Second progress message")
     
     assert len(calls) == 1
 
 @pytest.mark.parametrize("set_level,expected_levels", [
-    (MLog.SLOW_TRACE_LEVEL, ["SLOW_TRACE", "INFO", "WARNING", "ERROR", "CRITICAL"]), # SLOW_TRACE is 15
-    (MLog.TRACE_LEVEL, ["TRACE", "DEBUG", "SLOW_TRACE", "INFO", "WARNING", "ERROR", "CRITICAL"]),
-    (logging.DEBUG, ["DEBUG", "SLOW_TRACE", "INFO", "WARNING", "ERROR", "CRITICAL"]),
+    (MLog.PROGRESS_LEVEL, ["PROGRESS", "INFO", "WARNING", "ERROR", "CRITICAL"]), # PROGRESS is 15
+    (MLog.TRACE_LEVEL, ["TRACE", "DEBUG", "PROGRESS", "INFO", "WARNING", "ERROR", "CRITICAL"]), # TRACE is 5
+    (logging.DEBUG, ["DEBUG", "PROGRESS", "INFO", "WARNING", "ERROR", "CRITICAL"]), # DEBUG is 10
     (logging.INFO, ["INFO", "WARNING", "ERROR", "CRITICAL"]),
     (logging.WARNING, ["WARNING", "ERROR", "CRITICAL"]),
     (logging.ERROR, ["ERROR", "CRITICAL"]),
@@ -95,25 +95,25 @@ def test_log_level_filtering(set_level, expected_levels, capsys):
         
     # Map level names to log calls
     log_calls = [
-        ("SLOW_TRACE", lambda: logger.slow_trace("slow_trace message")),
         ("TRACE", lambda: logger.trace("trace message")),
         ("DEBUG", lambda: logger.debug("debug message")),
+        ("PROGRESS", lambda: logger.progress("progress message")),
         ("INFO", lambda: logger.info("info message")),
         ("WARNING", lambda: logger.warning("warning message")),
         ("ERROR", lambda: logger.error("error message")),
         ("CRITICAL", lambda: logger.critical("critical message")),
     ]
     
-    # Patch time to avoid rate-limiting for SLOW_TRACE
+    # Patch time to avoid rate-limiting for PROGRESS
     import time as _time
     orig_time = _time.time
     _time.time = lambda: 0
     try:
-        # Ensure SLOW_TRACE is not rate-limited by resetting _last_trace_log_time
-        logger._last_trace_log_time = -1000
+        # Ensure PROGRESS is not rate-limited by resetting _last_progress_log_time
+        logger._last_progress_log_time = -1000
         for idx, (level, call) in enumerate(log_calls):
-            if level == "SLOW_TRACE": # Only SLOW_TRACE has rate-limiting now
-                logger._last_trace_log_time = -1000
+            if level == "PROGRESS": # Only PROGRESS has rate-limiting now
+                logger._last_progress_log_time = -1000
             call()
     finally:
         _time.time = orig_time
@@ -130,8 +130,8 @@ def test_log_level_filtering(set_level, expected_levels, capsys):
     for level, _ in log_calls:
         if level in expected_levels:
             # Adjust assertion for STRACE first letter
-            expected_char = level[0] if level != "SLOW_TRACE" else "S"
+            expected_char = level[0] if level != "PROGRESS" else "P"
             assert f"{expected_char} |" in clean_captured
         else:
-            expected_char = level[0] if level != "SLOW_TRACE" else "S"
+            expected_char = level[0] if level != "PROGRESS" else "P"
             assert f"{expected_char} |" not in clean_captured

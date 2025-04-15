@@ -2,9 +2,9 @@ from tracecolor import MLog
 import logging
 
 LEVELS = [
-    ("SLOW_TRACE", MLog.SLOW_TRACE_LEVEL),
     ("TRACE", MLog.TRACE_LEVEL),
     ("DEBUG", logging.DEBUG),
+    ("PROGRESS", MLog.PROGRESS_LEVEL),
     ("INFO", logging.INFO),
     ("WARNING", logging.WARNING),
     ("ERROR", logging.ERROR),
@@ -12,13 +12,14 @@ LEVELS = [
 ]
 
 def log_all(logger):
-    logger.slow_trace("SLOW_TRACE message")
-    logger.trace("TRACE message")
-    logger.debug("DEBUG message")
-    logger.info("INFO message")
-    logger.warning("WARNING message")
-    logger.error("ERROR message")
-    logger.critical("CRITICAL message")
+    # Log messages in numerical order of levels
+    logger.trace("TRACE message")      # Level 5
+    logger.debug("DEBUG message")      # Level 10
+    logger.progress("PROGRESS message")  # Level 15
+    logger.info("INFO message")       # Level 20
+    logger.warning("WARNING message")    # Level 30
+    logger.error("ERROR message")      # Level 40
+    logger.critical("CRITICAL message")  # Level 50
 
 def main():
     for name, level in LEVELS:

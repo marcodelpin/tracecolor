@@ -1,10 +1,10 @@
 [project]
 name = "tracecolor"
-version = "0.3.3"
+version = "0.4.0"
 authors = [
   { name="Marco Del Pin", email="marco.delpin@gmail.com" },
 ]
-description = "A lightweight, colorized Python logger with TRACE and SLOW_TRACE level support."
+description = "A lightweight, colorized Python logger with TRACE and PROGRESS level support."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
