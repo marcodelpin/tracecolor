@@ -2,7 +2,7 @@ from tracecolor import MLog
 import logging
 
 LEVELS = [
-    ("SLOW_TRACE", MLog.SLOW_TRACE_LEVEL),
+    ("PROGRESS", MLog.PROGRESS_LEVEL),
     ("TRACE", MLog.TRACE_LEVEL),
     ("DEBUG", logging.DEBUG),
     ("INFO", logging.INFO),
@@ -12,7 +12,7 @@ LEVELS = [
 ]
 
 def log_all(logger):
-    logger.slow_trace("SLOW_TRACE message")
+    logger.progress("PROGRESS message")
     logger.trace("TRACE message")
     logger.debug("DEBUG message")
     logger.info("INFO message")

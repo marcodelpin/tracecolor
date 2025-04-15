@@ -26,14 +26,14 @@ class MLog(logging.Logger):
     ```
     """
     TRACE_LEVEL = 5  # TRACE below DEBUG (10)
-    SLOW_TRACE_LEVEL = 15  # SLOW_TRACE between DEBUG (10) and INFO (20)
+    PROGRESS_LEVEL = 15  # PROGRESS between DEBUG (10) and INFO (20)
 
     def __init__(self, name):
         super().__init__(name)
 
         # Register custom levels
         logging.addLevelName(self.TRACE_LEVEL, "TRACE")
-        logging.addLevelName(self.SLOW_TRACE_LEVEL, "SLOW_TRACE")
+        logging.addLevelName(self.PROGRESS_LEVEL, "PROGRESS")
 
         # Set up color formatter for standard log levels
         formatter = colorlog.ColoredFormatter(
@@ -45,8 +45,8 @@ class MLog(logging.Logger):
                 'WARNING': 'yellow',
                 'ERROR': 'red',
                 'CRITICAL': 'bold_red',
-                'TRACE': 'white',
-                'SLOW_TRACE': 'white',
+                'TRACE': 'dim_white',  # Use dim_white for gray
+                'PROGRESS': 'blue',
             }
         )
 
@@ -67,14 +67,14 @@ class MLog(logging.Logger):
         if self.level <= self.TRACE_LEVEL:
             self.log(self.TRACE_LEVEL, message, *args, **kwargs)
 
-    def slow_trace(self, message, *args, **kwargs):
-        """Log a message with severity 'STRACE' (for very frequent logs)."""
-        if self.level <= self.SLOW_TRACE_LEVEL:
+    def progress(self, message, *args, **kwargs):
+        """Log a message with severity 'PROGRESS' (for progress updates, rate-limited)."""
+        if self.level <= self.PROGRESS_LEVEL:
             current_time = time.time()
             # Rate-limiting: Log only if a second has passed since the last log
             if current_time - self._last_trace_log_time >= 1:
                 self._last_trace_log_time = current_time
-                self.log(self.SLOW_TRACE_LEVEL, message, *args, **kwargs)
+                self.log(self.PROGRESS_LEVEL, message, *args, **kwargs)
     
     def debug(self, message, *args, **kwargs):
         """Log a message with severity 'DEBUG'."""

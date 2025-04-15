@@ -1,13 +1,13 @@
 # TraceColor
 
-A lightweight, colorized Python logger with TRACE and SLOW_TRACE level support.
+A lightweight, colorized Python logger with TRACE and PROGRESS level support.
 
 ## Features
 
 - Custom TRACE logging level (lower than DEBUG)
-- Custom SLOW_TRACE logging level (between DEBUG and INFO)
+- Custom PROGRESS logging level (between DEBUG and INFO)
 - Colorized output for different log levels
-- Rate-limiting for SLOW_TRACE messages (once per second)
+- Rate-limiting for PROGRESS messages (once per second)
 - Simple and clean API
 
 ## Installation
@@ -26,7 +26,7 @@ logger = MLog(__name__)
 
 # Log at different levels
 logger.trace("Detailed tracing information")
-logger.slow_trace("Frequent tracing information (rate-limited)")
+logger.progress("Progress update information (rate-limited)")
 logger.debug("Debugging information")
 logger.info("General information")
 logger.warning("Warning message")
@@ -36,8 +36,8 @@ logger.critical("Critical error")
 
 ## Color Scheme
 
-- TRACE: White
-- SLOW_TRACE: White
+- TRACE: Gray (dim white)
+- PROGRESS: Blue
 - DEBUG: Cyan
 - INFO: Green
 - WARNING: Yellow
