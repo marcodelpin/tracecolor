@@ -8,7 +8,7 @@ setup(
     version="0.5.0",
     author="Marco Del Pin",
     author_email="marco.delpin@gmail.com",
-    description="A lightweight colorized logger with TRACE level support",
+    description="A lightweight, colorized Python logger with TRACE and PROGRESS level support.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/marcodelpin/tracecolor",

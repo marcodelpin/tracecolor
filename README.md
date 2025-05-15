@@ -1,4 +1,4 @@
-# TraceColor
+# tracecolor
 
 A lightweight, colorized Python logger with TRACE and PROGRESS level support.
 

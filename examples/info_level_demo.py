@@ -3,7 +3,7 @@ import logging
 
 def main():
     logger = tracecolor("demo")
-    logger.setLevel(logging.DEBUG)  # Enable DEBUG level
+    logger.setLevel(logging.INFO)  # Set level to INFO
 
     logger.trace("This is a TRACE message (should NOT appear)")
     logger.debug("This is a DEBUG message (should NOT appear)")
