@@ -91,19 +91,23 @@ class tracecolor(logging.Logger):
         # Per-call-site rate-limiting logic
         try:
             # Get the frame of the caller of this progress() method
-            frame = inspect.currentframe().f_back
-            # Create a unique key for the call site (file and line number)
-            call_site_key = (frame.f_code.co_filename, frame.f_lineno)
-        except Exception:
-            # Fallback to a global key if inspect fails (should be rare)
-            call_site_key = "__global_progress_fallback__"
+            current_frame = inspect.currentframe()
+            if current_frame and current_frame.f_back:
+                frame = current_frame.f_back
+                call_site_key = (frame.f_code.co_filename, frame.f_lineno)
+            else:
+                # Fallback if frame inspection is not possible (e.g., no caller frame)
+                call_site_key = "__global_progress_no_caller_frame__"
+        except Exception: # Catch any other unexpected errors during inspection
+            # Fallback to a different global key if inspect raises an unexpected exception
+            call_site_key = "__global_progress_inspect_exception__"
 
         current_time = time.time()
         # Get the last log time for this specific call site, default to 0 if not found
         last_log_time_for_site = self._last_progress_log_times.get(call_site_key, 0)
 
         # Log only if a second has passed since the last log from this specific call site
-        if current_time - last_log_time_for_site >= 1:
+        if current_time - last_log_time_for_site >= self.PROGRESS_INTERVAL:
             self._last_progress_log_times[call_site_key] = current_time
             # Actually log the message using the base Logger's log method
             self.log(self.PROGRESS_LEVEL, message, *args, **kwargs)
