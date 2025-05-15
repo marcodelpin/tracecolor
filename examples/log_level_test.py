@@ -9,7 +9,7 @@ def main():
     This script shows:
     - TRACE (5): Most verbose, below DEBUG
     - DEBUG (10): Standard debug level
-    - PROGRESS (15): Between DEBUG and INFO, rate-limited
+    - PROGRESS (15): Between DEBUG (10) and INFO (20), rate-limited. Visible if logger level is TRACE, DEBUG, or PROGRESS.
     - INFO (20): Standard info level
     - WARNING (30): Standard warning level
     - ERROR (40): Standard error level
@@ -23,25 +23,30 @@ def main():
     logger.setLevel(tracecolor.TRACE_LEVEL)
     log_all(logger)
     
-    # Show rate-limiting for STRACE
-    print(f"\n=== PROGRESS rate-limiting (only first message appears) ===")
-    logger.setLevel(tracecolor.TRACE_LEVEL)
-    logger.progress("First PROGRESS message")
-    logger.progress("Second PROGRESS message (should be rate-limited)")
+    # Show rate-limiting for PROGRESS
+    # The logger level is TRACE (5), so PROGRESS messages (level 15) are generally visible.
+    # However, PROGRESS messages are also rate-limited (by default, one per second per call site).
+    print(f"\n=== PROGRESS rate-limiting (logger level: TRACE, PROGRESS level: 15) ===")
+    logger.setLevel(tracecolor.TRACE_LEVEL) # Ensures PROGRESS messages are not filtered by level
+    logger.progress("First PROGRESS message (should appear, level 15 >= 5)")
+    logger.progress("Second PROGRESS message (should be rate-limited, even though level 15 >= 5)")
     
     # Wait 1 second to allow rate-limiting to reset
     time.sleep(1)
-    logger.progress("Third PROGRESS message (after 1 second, should appear)")
+    logger.progress("Third PROGRESS message (after 1s, rate limit reset, should appear, level 15 >= 5)")
     
     # Show filtering at different levels
-    print(f"\n=== Filtering at DEBUG level ({logging.DEBUG}) (TRACE filtered out) ===")
+    # Logger level is DEBUG (10). PROGRESS messages (15) will be shown as 15 >= 10. TRACE (5) will be filtered.
+    print(f"\n=== Filtering at DEBUG level ({logging.DEBUG}) (TRACE filtered out, PROGRESS shown) ===")
     logger.setLevel(logging.DEBUG)
     log_all(logger)
     
-    print(f"\n=== Filtering at PROGRESS level ({tracecolor.PROGRESS_LEVEL}) (TRACE and DEBUG filtered out) ===")
+    # Logger level is PROGRESS (15). PROGRESS messages (15) will be shown as 15 >= 15. TRACE (5) and DEBUG (10) will be filtered.
+    print(f"\n=== Filtering at PROGRESS level ({tracecolor.PROGRESS_LEVEL}) (TRACE and DEBUG filtered out, PROGRESS shown) ===")
     logger.setLevel(tracecolor.PROGRESS_LEVEL)
     log_all(logger)
     
+    # Logger level is INFO (20). PROGRESS messages (15) will be filtered out as 15 < 20.
     print(f"\n=== Filtering at INFO level ({logging.INFO}) (TRACE, DEBUG, and PROGRESS filtered out) ===")
     logger.setLevel(logging.INFO)
     log_all(logger)
@@ -50,6 +55,7 @@ def log_all(logger):
     """Log messages at all levels."""
     logger.trace("TRACE message")
     logger.debug("DEBUG message")
+    # PROGRESS messages (level 15) are visible if the logger's current set level is <= 15.
     logger.progress("PROGRESS message")
     logger.info("INFO message")
     logger.warning("WARNING message")

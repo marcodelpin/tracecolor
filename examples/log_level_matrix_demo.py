@@ -15,6 +15,7 @@ def log_all(logger):
     # Log messages in numerical order of levels
     logger.trace("TRACE message")      # Level 5
     logger.debug("DEBUG message")      # Level 10
+    # PROGRESS messages (level 15) are visible if the logger's current level is 15 or lower (i.e., TRACE, DEBUG, or PROGRESS).
     logger.progress("PROGRESS message")  # Level 15
     logger.info("INFO message")       # Level 20
     logger.warning("WARNING message")    # Level 30
