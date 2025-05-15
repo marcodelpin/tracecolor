@@ -58,21 +58,28 @@ def test_progress_rate_limiting():
     """Test that progress messages are rate-limited."""
     logger = tracecolor("test_rate_limit")
     
-    # Capture all handler calls
-    calls = []
-    
-    class MockHandler(logging.Handler):
-        def emit(self, record):
-            calls.append(record)
-    
-    mock_handler = MockHandler()
-    logger.handlers = [mock_handler]  # Replace the default handler
-    
-    # Two immediate progress calls from the same site should result in only one log
-    for _ in range(2):
-        logger.progress("Progress message from same site")
-    
-    assert len(calls) == 1
+    # Ensure PROGRESS_INTERVAL is default for this test to avoid cross-test contamination
+    saved_progress_interval = tracecolor.PROGRESS_INTERVAL
+    tracecolor.PROGRESS_INTERVAL = 1.0  # Default value for rate-limiting
+
+    try:
+        # Capture all handler calls
+        calls = []
+        
+        class MockHandler(logging.Handler):
+            def emit(self, record):
+                calls.append(record)
+        
+        mock_handler = MockHandler()
+        logger.handlers = [mock_handler]  # Replace the default handler
+        
+        # Two immediate progress calls from the same site should result in only one log
+        for _ in range(2):
+            logger.progress("Progress message from same site")
+        
+        assert len(calls) == 1
+    finally:
+        tracecolor.PROGRESS_INTERVAL = saved_progress_interval # Restore
 
 @pytest.mark.parametrize("set_level,expected_levels", [
     (tracecolor.PROGRESS_LEVEL, ["PROGRESS", "INFO", "WARNING", "ERROR", "CRITICAL"]), # PROGRESS is 15
