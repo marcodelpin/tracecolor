@@ -19,8 +19,11 @@ file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
 
 # Now logs will go to both console (with colors) and file (plain text)
+# By default, the logger level is DEBUG.
 logger.info("Application started")
 logger.debug("Debug information")
+# PROGRESS messages are visible if the logger level is TRACE, PROGRESS, or DEBUG.
+logger.progress("Performing a lengthy operation...")
 logger.warning("Warning message")
 
 try:
