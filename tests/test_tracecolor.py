@@ -68,9 +68,9 @@ def test_progress_rate_limiting():
     mock_handler = MockHandler()
     logger.handlers = [mock_handler]  # Replace the default handler
     
-    # Two immediate progress calls should result in only one log
-    logger.progress("First progress message")
-    logger.progress("Second progress message")
+    # Two immediate progress calls from the same site should result in only one log
+    for _ in range(2):
+        logger.progress("Progress message from same site")
     
     assert len(calls) == 1
 
@@ -104,19 +104,20 @@ def test_log_level_filtering(set_level, expected_levels, capsys):
         ("CRITICAL", lambda: logger.critical("critical message")),
     ]
     
-    # Patch time to avoid rate-limiting for PROGRESS
+    # Patch time to avoid issues with other time-sensitive parts if any,
+    # but primary rate-limiting bypass is now through PROGRESS_INTERVAL
     import time as _time
-    orig_time = _time.time
-    _time.time = lambda: 0
+    orig_time_func = _time.time # Save the original time function
+    _time.time = lambda: 0 # Mock time to a constant for predictability if other parts rely on it
+
+    original_progress_interval = tracecolor.PROGRESS_INTERVAL
     try:
-        # Ensure PROGRESS is not rate-limited by resetting _last_progress_log_time
-        logger._last_progress_log_time = -1000
-        for idx, (level, call) in enumerate(log_calls):
-            if level == "PROGRESS": # Only PROGRESS has rate-limiting now
-                logger._last_progress_log_time = -1000
+        tracecolor.PROGRESS_INTERVAL = 0  # Disable rate-limiting for this test
+        for level, call in log_calls:
             call()
     finally:
-        _time.time = orig_time
+        _time.time = orig_time_func # Restore original time function
+        tracecolor.PROGRESS_INTERVAL = original_progress_interval # Restore original interval
         # No need to restore formatters now
         # for i, handler in enumerate(logger.handlers):
         #      if i < len(original_handlers):

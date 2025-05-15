@@ -30,6 +30,7 @@ class tracecolor(logging.Logger):
     """
     TRACE_LEVEL = 5  # TRACE below DEBUG (10)
     PROGRESS_LEVEL = 15  # PROGRESS between DEBUG (10) and INFO (20)
+    PROGRESS_INTERVAL: float = 1  # Default interval in seconds for progress messages (0 or less disables rate-limiting for testing)
 
     def __init__(self, name):
         super().__init__(name)
@@ -75,6 +76,16 @@ class tracecolor(logging.Logger):
         # First, check if the logger is even enabled for the PROGRESS level.
         # This is the standard check: PROGRESS_LEVEL (15) must be >= logger.getEffectiveLevel().
         if not self.isEnabledFor(self.PROGRESS_LEVEL):
+            return
+
+        # If PROGRESS_INTERVAL is non-positive, log directly and bypass rate-limiting
+        if self.PROGRESS_INTERVAL <= 0:
+            # Directly call _log as per instruction, handling relevant kwargs
+            exc_info_val = kwargs.get('exc_info')
+            extra_val = kwargs.get('extra')
+            stack_info_val = kwargs.get('stack_info', False)
+            # stacklevel=2 ensures findCaller in _log points to the caller of progress()
+            super()._log(self.PROGRESS_LEVEL, message, args, exc_info=exc_info_val, extra=extra_val, stack_info=stack_info_val, stacklevel=2)
             return
 
         # Per-call-site rate-limiting logic
