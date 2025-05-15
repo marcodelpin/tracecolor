@@ -1,10 +1,10 @@
-from tracecolor import MLog
+from tracecolor import tracecolor
 import logging
 
 LEVELS = [
-    ("TRACE", MLog.TRACE_LEVEL),
+    ("TRACE", tracecolor.TRACE_LEVEL),
     ("DEBUG", logging.DEBUG),
-    ("PROGRESS", MLog.PROGRESS_LEVEL),
+    ("PROGRESS", tracecolor.PROGRESS_LEVEL),
     ("INFO", logging.INFO),
     ("WARNING", logging.WARNING),
     ("ERROR", logging.ERROR),
@@ -24,7 +24,7 @@ def log_all(logger):
 def main():
     for name, level in LEVELS:
         print(f"\n=== Logger set to {name} ({level}) ===")
-        logger = MLog(f"demo_{name}")
+        logger = tracecolor(f"demo_{name}")
         logger.setLevel(level)
         log_all(logger)
 

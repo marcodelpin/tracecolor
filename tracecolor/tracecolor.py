@@ -2,7 +2,7 @@ import logging
 import colorlog
 import time
 
-class MLog(logging.Logger):
+class tracecolor(logging.Logger):
     """
     Enhanced logger with colorized output and TRACE/PROGRESS levels.
     
@@ -15,9 +15,9 @@ class MLog(logging.Logger):
     
     Usage:
     ```python
-    from tracecolor import MLog
+    from tracecolor import tracecolor
     
-    logger = MLog(__name__)
+    logger = tracecolor(__name__)
     logger.trace("Detailed trace message")
     logger.debug("Debug information")
     logger.progress("Progress update (rate-limited)")
@@ -103,4 +103,4 @@ class MLog(logging.Logger):
         if self.level <= logging.CRITICAL:
             super().critical(message, *args, **kwargs)
 
-# Monkey-patching removed as methods are defined in MLog class
+# Monkey-patching removed as methods are defined in tracecolor class

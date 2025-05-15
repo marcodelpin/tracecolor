@@ -1,4 +1,4 @@
-from tracecolor import MLog
+from tracecolor import tracecolor
 import logging
 import time
 
@@ -16,16 +16,16 @@ def main():
     - CRITICAL (50): Standard critical level
     """
     # Create a logger
-    logger = MLog("test_logger")
+    logger = tracecolor("test_logger")
     
     # Show all log levels
     print("\n=== All log levels (logger level = TRACE = 5) ===")
-    logger.setLevel(MLog.TRACE_LEVEL)
+    logger.setLevel(tracecolor.TRACE_LEVEL)
     log_all(logger)
     
     # Show rate-limiting for STRACE
     print(f"\n=== PROGRESS rate-limiting (only first message appears) ===")
-    logger.setLevel(MLog.TRACE_LEVEL)
+    logger.setLevel(tracecolor.TRACE_LEVEL)
     logger.progress("First PROGRESS message")
     logger.progress("Second PROGRESS message (should be rate-limited)")
     
@@ -38,8 +38,8 @@ def main():
     logger.setLevel(logging.DEBUG)
     log_all(logger)
     
-    print(f"\n=== Filtering at PROGRESS level ({MLog.PROGRESS_LEVEL}) (TRACE and DEBUG filtered out) ===")
-    logger.setLevel(MLog.PROGRESS_LEVEL)
+    print(f"\n=== Filtering at PROGRESS level ({tracecolor.PROGRESS_LEVEL}) (TRACE and DEBUG filtered out) ===")
+    logger.setLevel(tracecolor.PROGRESS_LEVEL)
     log_all(logger)
     
     print(f"\n=== Filtering at INFO level ({logging.INFO}) (TRACE, DEBUG, and PROGRESS filtered out) ===")

@@ -1,0 +1,10 @@
+name: tracecolor-github-repo
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+    - colorlog>=6.0.0
+    - pytest

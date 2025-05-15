@@ -19,10 +19,10 @@ pip install tracecolor
 ## Usage
 
 ```python
-from tracecolor import MLog
+from tracecolor import tracecolor
 
 # Create a logger
-logger = MLog(__name__)
+logger = tracecolor(__name__)
 
 # Log at different levels
 logger.trace("Detailed tracing information")

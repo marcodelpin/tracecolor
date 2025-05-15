@@ -1,6 +1,6 @@
-# Contributing to MLog
+# Contributing to tracecolor
 
-We love your input! We want to make contributing to MLog as easy and transparent as possible, whether it's:
+We love your input! We want to make contributing to tracecolor as easy and transparent as possible, whether it's:
 
 - Reporting a bug
 - Discussing the current state of the code
@@ -40,8 +40,8 @@ pytest
 We use Black for code formatting and flake8 for linting. Please make sure your code follows these standards:
 
 ```bash
-black mlog/
-flake8 mlog/
+black tracecolor/
+flake8 tracecolor/
 ```
 
 ## License

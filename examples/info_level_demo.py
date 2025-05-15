@@ -1,8 +1,8 @@
-from tracecolor import MLog
+from tracecolor import tracecolor
 import logging
 
 def main():
-    logger = MLog("demo")
+    logger = tracecolor("demo")
     logger.setLevel(logging.DEBUG)  # Enable DEBUG level
 
     logger.trace("This is a TRACE message (should NOT appear)")
