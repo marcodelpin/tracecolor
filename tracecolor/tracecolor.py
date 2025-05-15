@@ -1,6 +1,7 @@
 import logging
 import colorlog
 import time
+import inspect
 
 class tracecolor(logging.Logger):
     """
@@ -62,7 +63,7 @@ class tracecolor(logging.Logger):
         self.propagate = False
 
         # Initialize last log time for rate-limiting
-        self._last_progress_log_time = 0
+        self._last_progress_log_times = {}
 
     def trace(self, message, *args, **kwargs):
         """Log a message with severity 'TRACE'."""
@@ -70,13 +71,31 @@ class tracecolor(logging.Logger):
             self.log(self.TRACE_LEVEL, message, *args, **kwargs)
 
     def progress(self, message, *args, **kwargs):
-        """Log a message with severity 'PROGRESS' (for progress updates, rate-limited)."""
-        if self.level <= self.PROGRESS_LEVEL:
-            current_time = time.time()
-            # Rate-limiting: Log only if a second has passed since the last log
-            if current_time - self._last_progress_log_time >= 1:
-                self._last_progress_log_time = current_time
-                self.log(self.PROGRESS_LEVEL, message, *args, **kwargs)
+        """Log a message with severity 'PROGRESS' (for progress updates, rate-limited per call site)."""
+        # First, check if the logger is even enabled for the PROGRESS level.
+        # This is the standard check: PROGRESS_LEVEL (15) must be >= logger.getEffectiveLevel().
+        if not self.isEnabledFor(self.PROGRESS_LEVEL):
+            return
+
+        # Per-call-site rate-limiting logic
+        try:
+            # Get the frame of the caller of this progress() method
+            frame = inspect.currentframe().f_back
+            # Create a unique key for the call site (file and line number)
+            call_site_key = (frame.f_code.co_filename, frame.f_lineno)
+        except Exception:
+            # Fallback to a global key if inspect fails (should be rare)
+            call_site_key = "__global_progress_fallback__"
+
+        current_time = time.time()
+        # Get the last log time for this specific call site, default to 0 if not found
+        last_log_time_for_site = self._last_progress_log_times.get(call_site_key, 0)
+
+        # Log only if a second has passed since the last log from this specific call site
+        if current_time - last_log_time_for_site >= 1:
+            self._last_progress_log_times[call_site_key] = current_time
+            # Actually log the message using the base Logger's log method
+            self.log(self.PROGRESS_LEVEL, message, *args, **kwargs)
     
     def debug(self, message, *args, **kwargs):
         """Log a message with severity 'DEBUG'."""

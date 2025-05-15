@@ -44,6 +44,7 @@ def main():
     # Logger level is PROGRESS (15). PROGRESS messages (15) will be shown as 15 >= 15. TRACE (5) and DEBUG (10) will be filtered.
     print(f"\n=== Filtering at PROGRESS level ({tracecolor.PROGRESS_LEVEL}) (TRACE and DEBUG filtered out, PROGRESS shown) ===")
     logger.setLevel(tracecolor.PROGRESS_LEVEL)
+    time.sleep(1) # Allow rate-limiter for log_all's progress call to reset from previous section
     log_all(logger)
     
     # Logger level is INFO (20). PROGRESS messages (15) will be filtered out as 15 < 20.
