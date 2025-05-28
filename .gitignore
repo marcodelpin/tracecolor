@@ -1,0 +1,36 @@
+# Exclude all project directories
+/Bat/
+/Eidon/
+/Eppos/
+/Global/
+/Linux/
+/Manuals/
+/Miei/
+/Oasis/
+/Opto3i/
+/Opto3i-NEW/
+/PiuSicura/
+/SquareDivision/
+/TFR/
+/Temp/
+/Tools/
+/Utils/
+/VideoSystems/
+/beanTech/
+/segment-anything/
+/settings/
+/ultralytics/
+
+# Exclude temporary directory
+/.temp/
+
+# Exclude specific files
+Manutenzione.png
+clean.bat
+cleanall.bat
+
+# Include only git management files
+!.gitignore
+!README.md
+!PROJECT_OVERVIEW.md
+!REORGANIZATION_PLAN.md
