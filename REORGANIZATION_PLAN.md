@@ -2,57 +2,57 @@
 
 ## Current Issues
 1. Mixed project types in root directory
-2. No clear categorization between active and archived projects
+2. No clear separation between companies/employers
 3. Utility scripts scattered across multiple directories
-4. Inconsistent naming conventions
-5. No clear separation between customer projects and internal tools
+4. No distinction between active consulting and legacy projects
+5. Current company projects mixed with historical work
 
 ## Proposed Structure
 
 ```
 /Commesse/
-├── 01_Active_Projects/
-│   ├── VisionSystems/
-│   │   ├── Opto3i/
-│   │   ├── VideoSystems/
-│   │   └── beanTech/
-│   ├── MachineLearning/
-│   │   ├── Eppos/
-│   │   ├── segment-anything/
-│   │   └── ultralytics/
-│   └── Manufacturing/
-│       └── Eidon/
+├── 01_SquareDivision/           (Current Company)
+│   ├── ultralytics/
+│   └── SquareDivision/
 │
-├── 02_Libraries/
-│   ├── CSharp/         (from Global/)
-│   ├── Python/
-│   └── Scripts/        (consolidated from Bat/, Linux/)
+├── 02_Consulting/               (Active Consulting)
+│   └── Opto3i-NEW/
 │
-├── 03_Tools/
-│   ├── Development/    (development tools)
-│   ├── Utilities/      (system utilities)
-│   └── Testing/        (testing tools)
+├── 03_ActiveProjects/           (Other Active Work)
+│   ├── Eppos/
+│   ├── segment-anything/
+│   └── Eidon/
 │
-├── 04_Archive/
+├── 04_PreviousCompanies/        (Historical Employment)
+│   ├── Opto3i/                  (Direct employment)
+│   ├── VideoSystems/
+│   └── beanTech/
+│
+├── 05_SharedLibraries/
+│   ├── Global/                  (C# libraries)
+│   ├── Tools/                   (Utilities)
+│   └── Utils/                   (Additional utilities)
+│
+├── 06_Scripts/
+│   ├── Bat/                     (Windows scripts)
+│   ├── Linux/                   (Linux/WSL scripts)
+│   └── settings/                (Configurations)
+│
+├── 07_Archive/
 │   ├── Oasis/
-│   ├── Opto3i-NEW/     (if deprecated)
 │   └── [other inactive projects]
 │
-├── 05_Documentation/
-│   ├── Manuals/
-│   ├── ProjectDocs/
-│   └── TechnicalSpecs/
-│
-├── 06_Personal/
+├── 08_Personal/
 │   ├── Miei/
 │   ├── TFR/
-│   └── PiuSicura/
+│   ├── PiuSicura/
+│   └── Manuals/
 │
 └── _Management/
     ├── .gitignore
     ├── README.md
     ├── PROJECT_OVERVIEW.md
-    └── settings/
+    └── REORGANIZATION_PLAN.md
 ```
 
 ## Reorganization Steps
@@ -78,11 +78,12 @@
 3. Update development workflows
 
 ## Benefits
-- Clear separation of concerns
-- Easier to identify active projects
-- Better organization for new developers
-- Simplified backup strategies
-- Clearer licensing boundaries
+- Clear separation between employers/companies
+- Easy identification of current vs consulting vs legacy work
+- Better intellectual property boundaries
+- Simplified billing and time tracking
+- Clearer licensing and ownership
+- Easier to manage confidentiality requirements
 
 ## Considerations
 - Maintain backward compatibility for active projects

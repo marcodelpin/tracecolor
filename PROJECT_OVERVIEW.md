@@ -2,23 +2,29 @@
 
 This repository serves as the root directory for multiple industrial software projects, primarily focused on computer vision, quality control, and manufacturing automation.
 
-## Project Categories
+## Project Categories by Company/Status
 
-### 1. Industrial Vision Systems
-- **Opto3i** / **Opto3i-NEW**: Industrial machine vision platform with implementations for various customers
-- **VideoSystems**: Video-based inspection systems with web interfaces
-- **beanTech**: Modern vision framework supporting multiple SDKs (MIL, OpenCV, Sapera, Arena)
+### 1. Current Company - SquareDivision
+- **SquareDivision**: Current company directory
+- **ultralytics**: YOLO-based object detection framework - active projects for SquareDivision
 
-### 2. Machine Learning & AI
+### 2. Consulting Projects
+- **Opto3i-NEW**: Active consulting projects for Opto3i company
+
+### 3. Previous Employment
+- **Opto3i**: Projects from when directly employed at Opto3i company (before becoming consultant)
+- **VideoSystems**: Previous company - video-based inspection systems with web interfaces
+- **beanTech**: Previous company - modern vision framework supporting multiple SDKs (MIL, OpenCV, Sapera, Arena)
+
+### 4. Active Projects
 - **Eppos**: Poultry quality inspection using YOLO models
 - **segment-anything**: Meta's SAM (Segment Anything Model) implementation
-- **ultralytics**: YOLO-based object detection framework
-
-### 3. Manufacturing & CAD/CAM
 - **Eidon**: Furniture manufacturing project with CAD/CAM integration and electrical design
+
+### 5. Archived Projects
 - **Oasis**: Archived project data
 
-### 4. Development Libraries & Tools
+### 6. Development Libraries & Tools
 - **Global**: Shared C# libraries including:
   - Math libraries (AlgLib, MMath)
   - Computer vision (MAccord based on Accord.NET)
@@ -28,7 +34,7 @@ This repository serves as the root directory for multiple industrial software pr
 - **Tools**: Collection of utility executables and development tools
 - **Utils**: Additional utility projects and solutions
 
-### 5. Configuration & Scripts
+### 7. Configuration & Scripts
 - **Bat**: Windows batch scripts for automation and file management
 - **Linux**: WSL setup and configuration scripts
 - **settings**: Development environment configurations (VS, ReSharper, etc.)
@@ -49,4 +55,10 @@ This repository serves as the root directory for multiple industrial software pr
 - Web-based monitoring interfaces
 
 ## Organization Notes
-This directory structure represents years of industrial software development with projects at various stages of maintenance and activity. The mix of legacy and modern technologies reflects the evolution of industrial vision systems over time.
+This directory structure represents years of industrial software development across multiple companies and roles:
+- Current employment at SquareDivision
+- Consulting work for former employer Opto3i
+- Projects from previous companies (VideoSystems, beanTech)
+- Mix of active development, consulting, and archived projects
+
+The structure reflects both professional evolution and technological advancement in industrial vision systems.
