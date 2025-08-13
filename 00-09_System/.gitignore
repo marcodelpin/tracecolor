@@ -1,0 +1,32 @@
+# Temporary files and directories
+.temp/
+*.tmp
+*.cache
+*.log
+
+# Windows system files
+Thumbs.db
+desktop.ini
+*.lnk
+
+# Backup files
+*.bak
+*~
+
+# Test outputs and reports
+*_REPORT.md
+result_*
+output_*
+
+# System specific
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE files
+.vscode/settings.json
+.vs/
