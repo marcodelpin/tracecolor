@@ -11,6 +11,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to create releases
+      id-token: write  # Required for trusted publishing to PyPI
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
