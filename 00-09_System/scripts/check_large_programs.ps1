@@ -33,9 +33,7 @@ foreach ($key in $uninstallKeys) {
 $programs = $programs | Sort-Object Name -Unique | Sort-Object SizeMB -Descending
 
 Write-Host "TOP 30 PROGRAMMI PIU GRANDI:" -ForegroundColor Green
-$programs | Select-Object -First 30 | Format-Table Name, SizeMB, Publisher -AutoSize
-
-Write-Host ""
+$programs | Select-Object -First 30 | Format-Table Name, SizeMB, Publisher -AutoSizeWrite-Host ""
 Write-Host "CATEGORIE DI PROGRAMMI DA CONSIDERARE PER RIMOZIONE:" -ForegroundColor Red
 
 $categories = @{
