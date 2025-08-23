@@ -1,7 +1,27 @@
-import logging
-import colorlog
+#!/usr/bin/env python3
+"""
+Tracecolor Enhanced - Loguru-powered logger with backward compatibility
+
+This module provides a drop-in replacement for the original tracecolor logger,
+now powered by Loguru backend for enterprise features while maintaining 
+the exact same API and behavior.
+
+Features identical to tracecolor 0.5.0:
+- TRACE (5), DEBUG (10), PROGRESS (15), INFO (20), WARNING (30), ERROR (40), CRITICAL (50)
+- Exact color scheme and single-char prefixes (T, D, P, I, W, E, C)
+- Progress rate limiting (1 message per second per call site)
+- Timestamp with milliseconds format
+- Same API and interface
+
+New features in 0.6.0:
+- UDP remote monitoring for real-time log streaming
+- File logging with rotation, compression, retention
+- External configuration support (JSON/YAML)
+- Thread-safe Loguru backend
+- Multiple simultaneous sinks
+"""
+
 import time
-import inspect
 import socket
 import json
 import sys
@@ -12,10 +32,11 @@ from typing import Dict, Optional, Any, Union
 from collections import defaultdict
 
 try:
-    from loguru import logger as _loguru_logger
-    LOGURU_AVAILABLE = True
+    from loguru import logger
 except ImportError:
-    LOGURU_AVAILABLE = False
+    raise ImportError(
+        "Tracecolor Enhanced requires Loguru. Install with: pip install loguru>=0.7.2"
+    )
 
 try:
     import yaml
@@ -78,9 +99,9 @@ class UDPSink:
             pass  # Silent fail
 
 
-class TracecolorEnhanced:
+class TracecolorLogger:
     """
-    Enhanced tracecolor using Loguru backend with backward compatibility
+    Tracecolor-compatible logger using Loguru backend
     
     Provides exact same interface and behavior as original tracecolor:
     - Same log levels and colors
@@ -101,9 +122,6 @@ class TracecolorEnhanced:
                  log_level: str = "TRACE",
                  config_file: Optional[str] = None):
         
-        if not LOGURU_AVAILABLE:
-            raise ImportError("Enhanced features require Loguru. Install with: pip install loguru>=0.7.2")
-        
         self.name = name
         self.progress_limiter = ProgressRateLimiter()
         self.udp_sink = None
@@ -121,14 +139,14 @@ class TracecolorEnhanced:
             log_level = config.get("log_level", log_level)
         
         # Create a new logger instance to avoid conflicts
-        self.logger = _loguru_logger.bind(name=name, logger_id=self._logger_id)
+        self.logger = logger.bind(name=name, logger_id=self._logger_id)
         
         # Remove default loguru handler for this instance
-        _loguru_logger.remove()
+        logger.remove()
         
         # Add custom PROGRESS level to match tracecolor exactly
         try:
-            _loguru_logger.level("PROGRESS", no=15, color="<blue>")
+            logger.level("PROGRESS", no=15, color="<blue>")
         except TypeError:
             pass  # Level already exists
         
@@ -140,7 +158,7 @@ class TracecolorEnhanced:
                 "<level>{message}</level>"  # Colored message
             )
             
-            _loguru_logger.add(
+            logger.add(
                 sink=sys.stderr,
                 format=console_format,
                 level=log_level,
@@ -158,7 +176,7 @@ class TracecolorEnhanced:
                 "[{name}:{function}:{line}] {message}"
             )
             
-            _loguru_logger.add(
+            logger.add(
                 sink=str(log_path / f"{name}.log"),
                 format=file_format,
                 level=log_level,
@@ -172,7 +190,7 @@ class TracecolorEnhanced:
         if enable_udp:
             try:
                 self.udp_sink = UDPSink(udp_host, udp_port)
-                _loguru_logger.add(
+                logger.add(
                     sink=self.udp_sink,
                     level=log_level,
                     format="{message}",
@@ -182,7 +200,7 @@ class TracecolorEnhanced:
                 pass  # Silent fail
         
         # Bind the logger to this instance with unique ID
-        self.logger = _loguru_logger.bind(name=name, logger_id=self._logger_id)
+        self.logger = logger.bind(name=name, logger_id=self._logger_id)
     
     def _load_config(self, config_file: str) -> Dict[str, Any]:
         """Load configuration from JSON or YAML file"""
@@ -249,163 +267,28 @@ class TracecolorEnhanced:
         self.logger.exception(message, *args, **kwargs)
 
 
-class tracecolor(logging.Logger):
+# Factory function for drop-in replacement
+def tracecolor(name: str, 
+               enable_console: bool = True,
+               enable_file: bool = False,
+               enable_udp: bool = False,
+               log_dir: Optional[Union[str, Path]] = None,
+               udp_host: str = "127.0.0.1", 
+               udp_port: int = 9999,
+               log_level: str = "TRACE",
+               config_file: Optional[str] = None) -> TracecolorLogger:
     """
-    Enhanced logger with colorized output and TRACE/PROGRESS levels.
-    
-    Features:
-    - Custom TRACE logging level (5, lower than DEBUG)
-    - Custom PROGRESS logging level (15, between DEBUG and INFO)
-    - Colorized output for different log levels
-    - Rate-limiting for PROGRESS messages (once per second)
-    - Timestamped log format
+    Drop-in replacement for tracecolor with enhanced features
     
     Usage:
-    ```python
-    from tracecolor import tracecolor
-    
-    logger = tracecolor(__name__)
-    logger.trace("Detailed trace message")
-    logger.debug("Debug information")
-    logger.progress("Progress update (rate-limited)")
-    logger.info("General information")
-    logger.warning("Warning message")
-    logger.error("Error message")
-    logger.critical("Critical error")
-    ```
-    """
-    TRACE_LEVEL = 5  # TRACE below DEBUG (10)
-    PROGRESS_LEVEL = 15  # PROGRESS between DEBUG (10) and INFO (20)
-    PROGRESS_INTERVAL: float = 1  # Default interval in seconds for progress messages (0 or less disables rate-limiting for testing)
-
-    def __init__(self, name):
-        super().__init__(name)
-
-        # Register custom levels
-        logging.addLevelName(self.TRACE_LEVEL, "TRACE")
-        logging.addLevelName(self.PROGRESS_LEVEL, "PROGRESS")
-
-        # Set up color formatter for standard log levels
-        formatter = colorlog.ColoredFormatter(
-            "%(log_color)s%(levelname).1s%(reset)s |%(asctime)s.%(msecs)03d| %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-            log_colors={
-                'DEBUG': 'cyan',
-                'INFO': 'green',
-                'WARNING': 'yellow',
-                'ERROR': 'red',
-                'CRITICAL': 'bold_red',
-                'TRACE': 'bold_black',  # Use bold_black for gray
-                'PROGRESS': 'blue',
-            }
-        )
-
-        # Console handler for standard log levels
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        self.addHandler(console_handler)
-
-        # Set the logger level to the lowest to capture all messages
-        self.setLevel(self.TRACE_LEVEL)
-        self.propagate = False
-
-        # Initialize last log time for rate-limiting
-        self._last_progress_log_times = {}
-
-    def trace(self, message, *args, **kwargs):
-        """Log a message with severity 'TRACE'."""
-        if self.level <= self.TRACE_LEVEL:
-            self.log(self.TRACE_LEVEL, message, *args, **kwargs)
-
-    def progress(self, message, *args, **kwargs):
-        """Log a message with severity 'PROGRESS' (for progress updates, rate-limited per call site)."""
-        # First, check if the logger is even enabled for the PROGRESS level.
-        # This is the standard check: PROGRESS_LEVEL (15) must be >= logger.getEffectiveLevel().
-        if not self.isEnabledFor(self.PROGRESS_LEVEL):
-            return
-
-        # If PROGRESS_INTERVAL is non-positive, log directly and bypass rate-limiting
-        if self.PROGRESS_INTERVAL <= 0:
-            # Directly call _log as per instruction, handling relevant kwargs
-            exc_info_val = kwargs.get('exc_info')
-            extra_val = kwargs.get('extra')
-            stack_info_val = kwargs.get('stack_info', False)
-            # stacklevel=2 ensures findCaller in _log points to the caller of progress()
-            super()._log(self.PROGRESS_LEVEL, message, args, exc_info=exc_info_val, extra=extra_val, stack_info=stack_info_val, stacklevel=2)
-            return
-
-        # Per-call-site rate-limiting logic
-        try:
-            # Get the frame of the caller of this progress() method
-            current_frame = inspect.currentframe()
-            if current_frame and current_frame.f_back:
-                frame = current_frame.f_back
-                call_site_key = (frame.f_code.co_filename, frame.f_lineno)
-            else:
-                # Fallback if frame inspection is not possible (e.g., no caller frame)
-                call_site_key = "__global_progress_no_caller_frame__"
-        except Exception: # Catch any other unexpected errors during inspection
-            # Fallback to a different global key if inspect raises an unexpected exception
-            call_site_key = "__global_progress_inspect_exception__"
-
-        current_time = time.time()
-        # Get the last log time for this specific call site, default to 0 if not found
-        last_log_time_for_site = self._last_progress_log_times.get(call_site_key, 0)
-
-        # Log only if a second has passed since the last log from this specific call site
-        if current_time - last_log_time_for_site >= self.PROGRESS_INTERVAL:
-            self._last_progress_log_times[call_site_key] = current_time
-            # Actually log the message using the base Logger's log method
-            self.log(self.PROGRESS_LEVEL, message, *args, **kwargs)
-    
-    def debug(self, message, *args, **kwargs):
-        """Log a message with severity 'DEBUG'."""
-        if self.level <= logging.DEBUG:
-            super().debug(message, *args, **kwargs)
-    
-    def info(self, message, *args, **kwargs):
-        """Log a message with severity 'INFO'."""
-        if self.level <= logging.INFO:
-            super().info(message, *args, **kwargs)
-    
-    def warning(self, message, *args, **kwargs):
-        """Log a message with severity 'WARNING'."""
-        if self.level <= logging.WARNING:
-            super().warning(message, *args, **kwargs)
-    
-    def error(self, message, *args, **kwargs):
-        """Log a message with severity 'ERROR'."""
-        if self.level <= logging.ERROR:
-            super().error(message, *args, **kwargs)
-    
-    def critical(self, message, *args, **kwargs):
-        """Log a message with severity 'CRITICAL'."""
-        if self.level <= logging.CRITICAL:
-            super().critical(message, *args, **kwargs)
-
-# Factory functions for enhanced features
-
-def create_enhanced_logger(name: str, 
-                          enable_console: bool = True,
-                          enable_file: bool = False,
-                          enable_udp: bool = False,
-                          log_dir: Optional[Union[str, Path]] = None,
-                          udp_host: str = "127.0.0.1", 
-                          udp_port: int = 9999,
-                          log_level: str = "TRACE",
-                          config_file: Optional[str] = None) -> TracecolorEnhanced:
-    """
-    Create enhanced tracecolor logger with Loguru backend
-    
-    Usage:
-        # Basic enhanced usage (backward compatible + new features)
-        logger = create_enhanced_logger(__name__)
+        # Exact same as original tracecolor
+        logger = tracecolor(__name__)
         
-        # With UDP monitoring and file logging
-        logger = create_enhanced_logger(__name__, enable_udp=True, enable_file=True, log_dir="logs")
+        # With enhanced features
+        logger = tracecolor(__name__, enable_udp=True, enable_file=True, log_dir="logs")
         
         # With external configuration
-        logger = create_enhanced_logger(__name__, config_file="logging.json")
+        logger = tracecolor(__name__, config_file="logging.json")
     
     Args:
         name: Logger name (typically __name__)
@@ -419,9 +302,9 @@ def create_enhanced_logger(name: str,
         config_file: External configuration file (JSON/YAML)
         
     Returns:
-        TracecolorEnhanced instance with same interface as original tracecolor
+        TracecolorLogger instance with same interface as original tracecolor
     """
-    return TracecolorEnhanced(
+    return TracecolorLogger(
         name=name,
         enable_console=enable_console,
         enable_file=enable_file,
@@ -432,7 +315,3 @@ def create_enhanced_logger(name: str,
         log_level=log_level,
         config_file=config_file
     )
-
-
-# Backward compatibility: users can still use tracecolor() as before
-# Enhanced features available via create_enhanced_logger() function

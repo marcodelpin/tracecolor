@@ -1,10 +1,10 @@
 [project]
 name = "tracecolor"
-version = "0.5.0"
+version = "0.6.0"
 authors = [
   { name="Marco Del Pin", email="marco.delpin@gmail.com" },
 ]
-description = "A lightweight, colorized Python logger with TRACE and PROGRESS level support."
+description = "Enhanced Python logger with colorized output, TRACE/PROGRESS levels, and enterprise features (UDP monitoring, file logging, external config) via optional Loguru backend."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -13,6 +13,12 @@ classifiers = [
 ]
 dependencies = [
     "colorlog>=6.0.0",
+]
+
+[project.optional-dependencies]
+enhanced = [
+    "loguru>=0.7.2",
+    "pyyaml>=6.0",
 ]
 license = { file = "LICENSE" }
 
