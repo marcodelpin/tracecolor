@@ -1,6 +1,6 @@
 # tracecolor
 
-Enhanced Python logger with colorized output, TRACE/PROGRESS levels, and enterprise features (UDP monitoring, file logging, external config) via optional Loguru backend.
+Enhanced Python logger with colorized output, TRACE/PROGRESS levels, and enterprise features. Now powered by Loguru backend with automatic fallback to standard logging for compatibility.
 
 ## Features
 
@@ -11,13 +11,14 @@ Enhanced Python logger with colorized output, TRACE/PROGRESS levels, and enterpr
 - Rate-limiting for PROGRESS messages (once per second per call site)
 - Simple and clean API
 
-### Enhanced Features (v0.6.0 - Optional)
+### Enhanced Features (v0.6.0 - Automatic with Loguru Backend)
+- **Loguru Wrapper**: tracecolor is now a Loguru wrapper with automatic fallback
 - **UDP Remote Monitoring**: Real-time log streaming over network
 - **File Logging**: Automatic rotation, compression, and retention
 - **External Configuration**: JSON/YAML configuration files
 - **Multiple Destinations**: Simultaneous logging to console, file, and UDP
-- **Loguru Backend**: Enterprise-grade performance and thread safety
-- **100% Backward Compatibility**: Existing code works unchanged
+- **Enterprise Performance**: Thread-safe, async support, better performance
+- **100% Backward Compatibility**: Existing code works unchanged, better backend
 
 ## Installation
 
@@ -52,10 +53,14 @@ logger.critical("Critical error")
 
 ### Enhanced Usage (v0.6.0 Features)
 ```python
-from tracecolor import create_enhanced_logger
+from tracecolor import tracecolor
 
-# Enhanced logger with UDP monitoring and file logging
-logger = create_enhanced_logger(
+# Standard usage now automatically uses Loguru backend if available
+logger = tracecolor(__name__)  # Now powered by Loguru!
+logger.info("Better performance, same API")
+
+# Enhanced features explicitly enabled
+logger = tracecolor(
     name=__name__,
     enable_console=True,      # Console output (same as original)
     enable_udp=True,          # UDP remote monitoring
@@ -68,6 +73,10 @@ logger = create_enhanced_logger(
 # Same API as original tracecolor
 logger.info("This message goes to console, file, AND UDP socket")
 logger.progress("Progress messages still rate-limited, now with enterprise backend")
+
+# Alternative: convenience function (same result)
+from tracecolor import create_enhanced_logger
+logger = create_enhanced_logger(__name__, enable_udp=True, enable_file=True, log_dir="logs")
 
 # Monitor logs in real-time (separate terminal)
 # python -m tracecolor.monitor
@@ -89,8 +98,8 @@ logger.progress("Progress messages still rate-limited, now with enterprise backe
 }
 
 # Use configuration file
-from tracecolor import create_enhanced_logger
-logger = create_enhanced_logger(__name__, config_file="logging_config.json")
+from tracecolor import tracecolor
+logger = tracecolor(__name__, config_file="logging_config.json")
 ```
 
 ## UDP Remote Monitoring
@@ -127,20 +136,19 @@ pip install --upgrade tracecolor
 pip install tracecolor[enhanced]
 ```
 
-**Step 3**: Gradually migrate to enhanced features where needed
+**Step 3**: Optionally enable enhanced features where needed
 ```python
-# Before (still works)
+# Before (still works, now with Loguru backend!)
 from tracecolor import tracecolor
-logger = tracecolor(__name__)
+logger = tracecolor(__name__)  # Automatically uses Loguru if available
 
-# After (enhanced features)
-from tracecolor import create_enhanced_logger
-logger = create_enhanced_logger(__name__, enable_udp=True, enable_file=True, log_dir="logs")
+# Enhanced features when needed
+logger = tracecolor(__name__, enable_udp=True, enable_file=True, log_dir="logs")
 ```
 
 **Step 4**: Add external configuration as projects mature
 ```python
-logger = create_enhanced_logger(__name__, config_file="logging.json")
+logger = tracecolor(__name__, config_file="logging.json")
 ```
 
 ## Color Scheme

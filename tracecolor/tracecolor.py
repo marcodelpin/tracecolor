@@ -78,187 +78,21 @@ class UDPSink:
             pass  # Silent fail
 
 
-class TracecolorEnhanced:
-    """
-    Enhanced tracecolor using Loguru backend with backward compatibility
-    
-    Provides exact same interface and behavior as original tracecolor:
-    - Same log levels and colors
-    - Progress rate limiting 
-    - Single character prefixes
-    - Millisecond timestamps
-    - Plus UDP remote monitoring and file logging
-    """
-    
-    def __init__(self, 
-                 name: str,
-                 enable_console: bool = True,
-                 enable_file: bool = False,
-                 enable_udp: bool = False,
-                 log_dir: Optional[Union[str, Path]] = None,
-                 udp_host: str = "127.0.0.1",
-                 udp_port: int = 9999,
-                 log_level: str = "TRACE",
-                 config_file: Optional[str] = None):
-        
-        if not LOGURU_AVAILABLE:
-            raise ImportError("Enhanced features require Loguru. Install with: pip install loguru>=0.7.2")
-        
-        self.name = name
-        self.progress_limiter = ProgressRateLimiter()
-        self.udp_sink = None
-        self._logger_id = id(self)  # Unique ID for this logger instance
-        
-        # Load external configuration if provided
-        if config_file:
-            config = self._load_config(config_file)
-            enable_console = config.get("enable_console", enable_console)
-            enable_file = config.get("enable_file", enable_file)
-            enable_udp = config.get("enable_udp", enable_udp)
-            log_dir = config.get("log_dir", log_dir)
-            udp_host = config.get("udp_host", udp_host)
-            udp_port = config.get("udp_port", udp_port)
-            log_level = config.get("log_level", log_level)
-        
-        # Create a new logger instance to avoid conflicts
-        self.logger = _loguru_logger.bind(name=name, logger_id=self._logger_id)
-        
-        # Remove default loguru handler for this instance
-        _loguru_logger.remove()
-        
-        # Add custom PROGRESS level to match tracecolor exactly
-        try:
-            _loguru_logger.level("PROGRESS", no=15, color="<blue>")
-        except TypeError:
-            pass  # Level already exists
-        
-        # Console handler with tracecolor format
-        if enable_console:
-            console_format = (
-                "<dim>{level.name[0]}</dim> "  # Single char prefix
-                "|<dim>{time:YYYY-MM-DD HH:mm:ss.SSS}</dim>| "  # Timestamp with milliseconds
-                "<level>{message}</level>"  # Colored message
-            )
-            
-            _loguru_logger.add(
-                sink=sys.stderr,
-                format=console_format,
-                level=log_level,
-                colorize=True,
-                filter=self._console_filter
-            )
-        
-        # File handler
-        if enable_file and log_dir:
-            log_path = Path(log_dir)
-            log_path.mkdir(exist_ok=True, parents=True)
-            
-            file_format = (
-                "{level.name[0]} |{time:YYYY-MM-DD HH:mm:ss.SSS}| "
-                "[{name}:{function}:{line}] {message}"
-            )
-            
-            _loguru_logger.add(
-                sink=str(log_path / f"{name}.log"),
-                format=file_format,
-                level=log_level,
-                rotation="10 MB",
-                retention="7 days",
-                compression="zip",
-                filter=lambda record: record["extra"].get("logger_id") == self._logger_id
-            )
-        
-        # UDP handler for remote monitoring
-        if enable_udp:
-            try:
-                self.udp_sink = UDPSink(udp_host, udp_port)
-                _loguru_logger.add(
-                    sink=self.udp_sink,
-                    level=log_level,
-                    format="{message}",
-                    filter=lambda record: record["extra"].get("logger_id") == self._logger_id
-                )
-            except Exception:
-                pass  # Silent fail
-        
-        # Bind the logger to this instance with unique ID
-        self.logger = _loguru_logger.bind(name=name, logger_id=self._logger_id)
-    
-    def _load_config(self, config_file: str) -> Dict[str, Any]:
-        """Load configuration from JSON or YAML file"""
-        config_path = Path(config_file)
-        if not config_path.exists():
-            return {}
-        
-        try:
-            with open(config_path, 'r', encoding='utf-8') as f:
-                if config_file.endswith(('.yaml', '.yml')):
-                    if not YAML_AVAILABLE:
-                        raise ImportError("PyYAML required for YAML config files")
-                    return yaml.safe_load(f).get('logging', {})
-                else:
-                    return json.load(f).get('logging', {})
-        except Exception:
-            return {}
-    
-    def _console_filter(self, record):
-        """Filter for console output - handles progress rate limiting"""
-        # Only process records from this logger instance
-        if record["extra"].get("logger_id") != self._logger_id:
-            return False
-        
-        # Apply rate limiting only to PROGRESS level
-        if record["level"].name == "PROGRESS":
-            call_site = f"{record['file'].name}:{record['function']}:{record['line']}"
-            if not self.progress_limiter.should_log(call_site):
-                return False  # Skip this message
-        
-        return True  # Allow all other messages
-    
-    # Tracecolor-compatible interface
-    def trace(self, message: str, *args, **kwargs):
-        """Log TRACE level message (most detailed)"""
-        self.logger.trace(message, *args, **kwargs)
-    
-    def debug(self, message: str, *args, **kwargs):
-        """Log DEBUG level message"""
-        self.logger.debug(message, *args, **kwargs)
-    
-    def progress(self, message: str, *args, **kwargs):
-        """Log PROGRESS level message (rate-limited to 1/second per call site)"""
-        self.logger.log("PROGRESS", message, *args, **kwargs)
-    
-    def info(self, message: str, *args, **kwargs):
-        """Log INFO level message"""
-        self.logger.info(message, *args, **kwargs)
-    
-    def warning(self, message: str, *args, **kwargs):
-        """Log WARNING level message"""
-        self.logger.warning(message, *args, **kwargs)
-    
-    def error(self, message: str, *args, **kwargs):
-        """Log ERROR level message"""
-        self.logger.error(message, *args, **kwargs)
-    
-    def critical(self, message: str, *args, **kwargs):
-        """Log CRITICAL level message"""
-        self.logger.critical(message, *args, **kwargs)
-    
-    def exception(self, message: str, *args, **kwargs):
-        """Log exception with traceback"""
-        self.logger.exception(message, *args, **kwargs)
+# TracecolorEnhanced class removed - now tracecolor is the Loguru wrapper
 
 
-class tracecolor(logging.Logger):
+class tracecolor:
     """
     Enhanced logger with colorized output and TRACE/PROGRESS levels.
+    Now powered by Loguru backend for better performance and features.
     
     Features:
     - Custom TRACE logging level (5, lower than DEBUG)
     - Custom PROGRESS logging level (15, between DEBUG and INFO)
     - Colorized output for different log levels
-    - Rate-limiting for PROGRESS messages (once per second)
-    - Timestamped log format
+    - Rate-limiting for PROGRESS messages (once per second per call site)
+    - Loguru backend with enterprise features
+    - Optional enhanced features (UDP, file logging, external config)
     
     Usage:
     ```python
@@ -278,9 +112,115 @@ class tracecolor(logging.Logger):
     PROGRESS_LEVEL = 15  # PROGRESS between DEBUG (10) and INFO (20)
     PROGRESS_INTERVAL: float = 1  # Default interval in seconds for progress messages (0 or less disables rate-limiting for testing)
 
-    def __init__(self, name):
-        super().__init__(name)
-
+    def __init__(self, 
+                 name: str,
+                 enable_console: bool = True,
+                 enable_file: bool = False,
+                 enable_udp: bool = False,
+                 log_dir: Optional[Union[str, Path]] = None,
+                 udp_host: str = "127.0.0.1",
+                 udp_port: int = 9999,
+                 log_level: str = "TRACE",
+                 config_file: Optional[str] = None):
+        
+        self.name = name
+        self.progress_limiter = ProgressRateLimiter()
+        self.udp_sink = None
+        self._logger_id = id(self)  # Unique ID for this logger instance
+        
+        # Check if Loguru is available, fall back to logging if not
+        if LOGURU_AVAILABLE:
+            self._init_loguru_backend(enable_console, enable_file, enable_udp, 
+                                    log_dir, udp_host, udp_port, log_level, config_file)
+        else:
+            self._init_logging_backend(name)
+    
+    def _init_loguru_backend(self, enable_console, enable_file, enable_udp, 
+                           log_dir, udp_host, udp_port, log_level, config_file):
+        """Initialize with Loguru backend (preferred)"""
+        # Load external configuration if provided
+        if config_file:
+            config = self._load_config(config_file)
+            enable_console = config.get("enable_console", enable_console)
+            enable_file = config.get("enable_file", enable_file)
+            enable_udp = config.get("enable_udp", enable_udp)
+            log_dir = config.get("log_dir", log_dir)
+            udp_host = config.get("udp_host", udp_host)
+            udp_port = config.get("udp_port", udp_port)
+            log_level = config.get("log_level", log_level)
+        
+        # Create a new logger instance to avoid conflicts
+        self.logger = _loguru_logger.bind(name=self.name, logger_id=self._logger_id)
+        
+        # Remove default loguru handler for this instance
+        _loguru_logger.remove()
+        
+        # Add custom PROGRESS level to match tracecolor exactly
+        try:
+            _loguru_logger.level("PROGRESS", no=15, color="<blue>")
+        except TypeError:
+            pass  # Level already exists
+        
+        # Console handler with tracecolor format (backward compatible)
+        if enable_console:
+            console_format = (
+                "<dim>{level.name[0]}</dim> "  # Single char prefix
+                "|<dim>{time:YYYY-MM-DD HH:mm:ss.SSS}</dim>| "  # Timestamp with milliseconds
+                "<level>{message}</level>"  # Colored message
+            )
+            
+            _loguru_logger.add(
+                sink=sys.stderr,
+                format=console_format,
+                level=log_level,
+                colorize=True,
+                filter=self._console_filter
+            )
+        
+        # File handler (enhanced feature)
+        if enable_file and log_dir:
+            log_path = Path(log_dir)
+            log_path.mkdir(exist_ok=True, parents=True)
+            
+            file_format = (
+                "{level.name[0]} |{time:YYYY-MM-DD HH:mm:ss.SSS}| "
+                "[{name}:{function}:{line}] {message}"
+            )
+            
+            _loguru_logger.add(
+                sink=str(log_path / f"{self.name}.log"),
+                format=file_format,
+                level=log_level,
+                rotation="10 MB",
+                retention="7 days",
+                compression="zip",
+                filter=lambda record: record["extra"].get("logger_id") == self._logger_id
+            )
+        
+        # UDP handler for remote monitoring (enhanced feature)
+        if enable_udp:
+            try:
+                self.udp_sink = UDPSink(udp_host, udp_port)
+                _loguru_logger.add(
+                    sink=self.udp_sink,
+                    level=log_level,
+                    format="{message}",
+                    filter=lambda record: record["extra"].get("logger_id") == self._logger_id
+                )
+            except Exception:
+                pass  # Silent fail
+        
+        # Bind the logger to this instance with unique ID
+        self.logger = _loguru_logger.bind(name=self.name, logger_id=self._logger_id)
+        self.backend = "loguru"
+    
+    def _init_logging_backend(self, name):
+        """Fallback to original logging backend if Loguru not available"""
+        import logging
+        import colorlog
+        
+        self.logger = logging.getLogger(name)
+        
         # Register custom levels
         logging.addLevelName(self.TRACE_LEVEL, "TRACE")
         logging.addLevelName(self.PROGRESS_LEVEL, "PROGRESS")
@@ -303,85 +243,146 @@ class tracecolor(logging.Logger):
         # Console handler for standard log levels
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
-        self.addHandler(console_handler)
+        self.logger.addHandler(console_handler)
 
         # Set the logger level to the lowest to capture all messages
-        self.setLevel(self.TRACE_LEVEL)
-        self.propagate = False
+        self.logger.setLevel(self.TRACE_LEVEL)
+        self.logger.propagate = False
 
         # Initialize last log time for rate-limiting
         self._last_progress_log_times = {}
+        self.backend = "logging"
+    
+    def _load_config(self, config_file: str) -> Dict[str, Any]:
+        """Load configuration from JSON or YAML file"""
+        config_path = Path(config_file)
+        if not config_path.exists():
+            return {}
+        
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                if config_file.endswith(('.yaml', '.yml')):
+                    if not YAML_AVAILABLE:
+                        raise ImportError("PyYAML required for YAML config files")
+                    return yaml.safe_load(f).get('logging', {})
+                else:
+                    return json.load(f).get('logging', {})
+        except Exception:
+            return {}
+    
+    def _console_filter(self, record):
+        """Filter for console output - handles progress rate limiting (Loguru backend)"""
+        # Only process records from this logger instance
+        if record["extra"].get("logger_id") != self._logger_id:
+            return False
+        
+        # Apply rate limiting only to PROGRESS level
+        if record["level"].name == "PROGRESS":
+            call_site = f"{record['file'].name}:{record['function']}:{record['line']}"
+            if not self.progress_limiter.should_log(call_site):
+                return False  # Skip this message
+        
+        return True  # Allow all other messages
 
     def trace(self, message, *args, **kwargs):
         """Log a message with severity 'TRACE'."""
-        if self.level <= self.TRACE_LEVEL:
-            self.log(self.TRACE_LEVEL, message, *args, **kwargs)
+        if self.backend == "loguru":
+            self.logger.trace(message, *args, **kwargs)
+        else:
+            if self.logger.level <= self.TRACE_LEVEL:
+                self.logger.log(self.TRACE_LEVEL, message, *args, **kwargs)
 
     def progress(self, message, *args, **kwargs):
         """Log a message with severity 'PROGRESS' (for progress updates, rate-limited per call site)."""
-        # First, check if the logger is even enabled for the PROGRESS level.
-        # This is the standard check: PROGRESS_LEVEL (15) must be >= logger.getEffectiveLevel().
-        if not self.isEnabledFor(self.PROGRESS_LEVEL):
-            return
+        if self.backend == "loguru":
+            # Loguru backend handles rate limiting via filter
+            self.logger.log("PROGRESS", message, *args, **kwargs)
+        else:
+            # Original logging backend with rate limiting
+            # First, check if the logger is even enabled for the PROGRESS level.
+            if not self.logger.isEnabledFor(self.PROGRESS_LEVEL):
+                return
 
-        # If PROGRESS_INTERVAL is non-positive, log directly and bypass rate-limiting
-        if self.PROGRESS_INTERVAL <= 0:
-            # Directly call _log as per instruction, handling relevant kwargs
-            exc_info_val = kwargs.get('exc_info')
-            extra_val = kwargs.get('extra')
-            stack_info_val = kwargs.get('stack_info', False)
-            # stacklevel=2 ensures findCaller in _log points to the caller of progress()
-            super()._log(self.PROGRESS_LEVEL, message, args, exc_info=exc_info_val, extra=extra_val, stack_info=stack_info_val, stacklevel=2)
-            return
+            # If PROGRESS_INTERVAL is non-positive, log directly and bypass rate-limiting
+            if self.PROGRESS_INTERVAL <= 0:
+                # Directly call _log as per instruction, handling relevant kwargs
+                exc_info_val = kwargs.get('exc_info')
+                extra_val = kwargs.get('extra')
+                stack_info_val = kwargs.get('stack_info', False)
+                # stacklevel=2 ensures findCaller in _log points to the caller of progress()
+                self.logger._log(self.PROGRESS_LEVEL, message, args, exc_info=exc_info_val, extra=extra_val, stack_info=stack_info_val, stacklevel=2)
+                return
 
-        # Per-call-site rate-limiting logic
-        try:
-            # Get the frame of the caller of this progress() method
-            current_frame = inspect.currentframe()
-            if current_frame and current_frame.f_back:
-                frame = current_frame.f_back
-                call_site_key = (frame.f_code.co_filename, frame.f_lineno)
-            else:
-                # Fallback if frame inspection is not possible (e.g., no caller frame)
-                call_site_key = "__global_progress_no_caller_frame__"
-        except Exception: # Catch any other unexpected errors during inspection
-            # Fallback to a different global key if inspect raises an unexpected exception
-            call_site_key = "__global_progress_inspect_exception__"
+            # Per-call-site rate-limiting logic
+            try:
+                # Get the frame of the caller of this progress() method
+                current_frame = inspect.currentframe()
+                if current_frame and current_frame.f_back:
+                    frame = current_frame.f_back
+                    call_site_key = (frame.f_code.co_filename, frame.f_lineno)
+                else:
+                    # Fallback if frame inspection is not possible (e.g., no caller frame)
+                    call_site_key = "__global_progress_no_caller_frame__"
+            except Exception: # Catch any other unexpected errors during inspection
+                # Fallback to a different global key if inspect raises an unexpected exception
+                call_site_key = "__global_progress_inspect_exception__"
 
-        current_time = time.time()
-        # Get the last log time for this specific call site, default to 0 if not found
-        last_log_time_for_site = self._last_progress_log_times.get(call_site_key, 0)
+            current_time = time.time()
+            # Get the last log time for this specific call site, default to 0 if not found
+            last_log_time_for_site = self._last_progress_log_times.get(call_site_key, 0)
 
-        # Log only if a second has passed since the last log from this specific call site
-        if current_time - last_log_time_for_site >= self.PROGRESS_INTERVAL:
-            self._last_progress_log_times[call_site_key] = current_time
-            # Actually log the message using the base Logger's log method
-            self.log(self.PROGRESS_LEVEL, message, *args, **kwargs)
+            # Log only if a second has passed since the last log from this specific call site
+            if current_time - last_log_time_for_site >= self.PROGRESS_INTERVAL:
+                self._last_progress_log_times[call_site_key] = current_time
+                # Actually log the message using the base Logger's log method
+                self.logger.log(self.PROGRESS_LEVEL, message, *args, **kwargs)
     
     def debug(self, message, *args, **kwargs):
         """Log a message with severity 'DEBUG'."""
-        if self.level <= logging.DEBUG:
-            super().debug(message, *args, **kwargs)
+        if self.backend == "loguru":
+            self.logger.debug(message, *args, **kwargs)
+        else:
+            if self.logger.level <= logging.DEBUG:
+                self.logger.debug(message, *args, **kwargs)
     
     def info(self, message, *args, **kwargs):
         """Log a message with severity 'INFO'."""
-        if self.level <= logging.INFO:
-            super().info(message, *args, **kwargs)
+        if self.backend == "loguru":
+            self.logger.info(message, *args, **kwargs)
+        else:
+            if self.logger.level <= logging.INFO:
+                self.logger.info(message, *args, **kwargs)
     
     def warning(self, message, *args, **kwargs):
         """Log a message with severity 'WARNING'."""
-        if self.level <= logging.WARNING:
-            super().warning(message, *args, **kwargs)
+        if self.backend == "loguru":
+            self.logger.warning(message, *args, **kwargs)
+        else:
+            if self.logger.level <= logging.WARNING:
+                self.logger.warning(message, *args, **kwargs)
     
     def error(self, message, *args, **kwargs):
         """Log a message with severity 'ERROR'."""
-        if self.level <= logging.ERROR:
-            super().error(message, *args, **kwargs)
+        if self.backend == "loguru":
+            self.logger.error(message, *args, **kwargs)
+        else:
+            if self.logger.level <= logging.ERROR:
+                self.logger.error(message, *args, **kwargs)
     
     def critical(self, message, *args, **kwargs):
         """Log a message with severity 'CRITICAL'."""
-        if self.level <= logging.CRITICAL:
-            super().critical(message, *args, **kwargs)
+        if self.backend == "loguru":
+            self.logger.critical(message, *args, **kwargs)
+        else:
+            if self.logger.level <= logging.CRITICAL:
+                self.logger.critical(message, *args, **kwargs)
+    
+    def exception(self, message, *args, **kwargs):
+        """Log exception with traceback"""
+        if self.backend == "loguru":
+            self.logger.exception(message, *args, **kwargs)
+        else:
+            self.logger.exception(message, *args, **kwargs)
 
 # Factory functions for enhanced features
 
@@ -393,12 +394,15 @@ def create_enhanced_logger(name: str,
                           udp_host: str = "127.0.0.1", 
                           udp_port: int = 9999,
                           log_level: str = "TRACE",
-                          config_file: Optional[str] = None) -> TracecolorEnhanced:
+                          config_file: Optional[str] = None) -> 'tracecolor':
     """
-    Create enhanced tracecolor logger with Loguru backend
+    Create enhanced tracecolor logger with Loguru backend features enabled
+    
+    This is just a convenience function that enables enhanced features by default.
+    The main tracecolor class now supports all these features natively.
     
     Usage:
-        # Basic enhanced usage (backward compatible + new features)
+        # Basic enhanced usage (Loguru backend + enhanced features)
         logger = create_enhanced_logger(__name__)
         
         # With UDP monitoring and file logging
@@ -419,9 +423,9 @@ def create_enhanced_logger(name: str,
         config_file: External configuration file (JSON/YAML)
         
     Returns:
-        TracecolorEnhanced instance with same interface as original tracecolor
+        tracecolor instance with enhanced features enabled
     """
-    return TracecolorEnhanced(
+    return tracecolor(
         name=name,
         enable_console=enable_console,
         enable_file=enable_file,
@@ -434,5 +438,7 @@ def create_enhanced_logger(name: str,
     )
 
 
-# Backward compatibility: users can still use tracecolor() as before
-# Enhanced features available via create_enhanced_logger() function
+# Backward compatibility: 
+# - tracecolor(__name__) uses Loguru backend if available, falls back to logging
+# - create_enhanced_logger() is a convenience function for explicit enhanced features
+# - Both return the same tracecolor class, just with different default parameters
