@@ -1,11 +1,23 @@
 from setuptools import setup, find_packages
+import os
+import re
+
+# Read version from __init__.py
+def get_version():
+    init_path = os.path.join(os.path.dirname(__file__), "tracecolor", "__init__.py")
+    with open(init_path, "r", encoding="utf-8") as f:
+        content = f.read()
+        match = re.search(r'__version__\s*=\s*["\']([^"\']+)["\']', content)
+        if match:
+            return match.group(1)
+        raise RuntimeError("Unable to find version string in __init__.py")
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
     name="tracecolor",
-    version="0.7.0",
+    version=get_version(),
     author="Marco Del Pin",
     author_email="marco.delpin@gmail.com",
     description="Enhanced Python logger with colorized output, TRACE/PROGRESS levels, UDP monitoring, and Loguru backend.",
