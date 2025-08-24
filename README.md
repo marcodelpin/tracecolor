@@ -11,7 +11,7 @@ Enhanced Python logger with colorized output, TRACE/PROGRESS levels, UDP monitor
 - Rate-limiting for PROGRESS messages (once per second per call site)
 - Simple and clean API
 
-### Enhanced Features (v0.7.0)
+### Enhanced Features (v0.7.5)
 - **Pure Loguru Backend**: Superior performance and features
 - **UDP Remote Monitoring**: Real-time log streaming with `tracecolor-monitor` command
 - **File Logging**: Automatic rotation, compression, and retention
