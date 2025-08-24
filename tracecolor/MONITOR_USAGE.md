@@ -1,8 +1,8 @@
 # Tracecolor UDP Monitor - Quick Start
 
-**Nota**: Tutti gli script del monitor si trovano nella directory `tracecolor/`
+**Note**: All monitor scripts are located in the `tracecolor/` directory
 
-## Avviare il Monitor UDP
+## Starting the UDP Monitor
 
 ### Windows
 
@@ -32,12 +32,12 @@ python run_monitor.py 8888 0.0.0.0
 
 ### Linux/Mac
 
-#### 1. Script Diretto (più semplice)
+#### 1. Direct Script (simplest)
 ```bash
 cd tracecolor
 ./monitor
 ```
-O con porta personalizzata:
+Or with custom port:
 ```bash
 ./monitor 8888
 ```
@@ -47,73 +47,73 @@ O con porta personalizzata:
 cd tracecolor
 ./monitor.sh
 ```
-O con porta e host personalizzati:
+Or with custom port and host:
 ```bash
 ./monitor.sh 8888 0.0.0.0
 ```
 
-#### 3. Modulo Python
+#### 3. Python Module
 ```bash
 python3 -m tracecolor.monitor
 ```
-Con opzioni:
+With options:
 ```bash
 python3 -m tracecolor.monitor --port 8888 --host 0.0.0.0
 ```
 
-#### 4. Dopo Installazione (con pip install)
+#### 4. After Installation (with pip install)
 ```bash
 tracecolor-monitor
 ```
 
-## Opzioni Disponibili
+## Available Options
 
-- `--port PORT` o `-p PORT`: Porta UDP (default: 9999)
-- `--host HOST`: Indirizzo IP (default: 127.0.0.1)
-- `--help` o `-h`: Mostra aiuto
+- `--port PORT` or `-p PORT`: UDP port (default: 9999)
+- `--host HOST`: IP address (default: 127.0.0.1)
+- `--help` or `-h`: Show help
 
-## Test Rapido
+## Quick Test
 
 ### Windows
-In un terminale CMD o PowerShell avvia il monitor:
+In a CMD or PowerShell terminal, start the monitor:
 ```cmd
 cd tracecolor
 monitor.bat
 ```
 
-In un altro terminale esegui il test:
+In another terminal, run the test:
 ```cmd
 python test_tracecolor_loop.py
 ```
 
 ### Linux/Mac
-In un terminale avvia il monitor:
+In a terminal, start the monitor:
 ```bash
 cd tracecolor
 ./monitor
 ```
 
-In un altro terminale esegui il test:
+In another terminal, run the test:
 ```bash
 python3 test_tracecolor_loop.py
 ```
 
-## Colori Output
+## Output Colors
 
-- **TRACE** (T): Grigio
-- **DEBUG** (D): Ciano  
-- **PROGRESS** (P): Blu
-- **INFO** (I): Verde
-- **WARNING** (W): Giallo
-- **ERROR** (E): Rosso
-- **CRITICAL** (C): Rosso grassetto
+- **TRACE** (T): Gray
+- **DEBUG** (D): Cyan  
+- **PROGRESS** (P): Blue
+- **INFO** (I): Green
+- **WARNING** (W): Yellow
+- **ERROR** (E): Red
+- **CRITICAL** (C): Bold red
 
 ## Troubleshooting
 
-Se la porta è già in uso:
+If the port is already in use:
 ```bash
 lsof -i :9999
-# Oppure cambia porta
+# Or change port
 cd tracecolor
 ./monitor 8888
 ```
