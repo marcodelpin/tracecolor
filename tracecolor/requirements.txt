@@ -1,0 +1,5 @@
+# Required dependencies
+loguru>=0.7.2
+
+# Optional for YAML configuration support
+pyyaml>=6.0

@@ -1,0 +1,13 @@
+# Core dependencies (automatically installed with pip install tracecolor)
+loguru>=0.7.2
+colorlog>=6.0.0
+
+# Optional dependencies (install with pip install tracecolor[yaml])
+# pyyaml>=6.0
+
+# Development dependencies (install with pip install tracecolor[dev])
+# pytest>=7.0
+# pytest-cov>=4.0
+# black>=22.0
+# flake8>=5.0
+# mypy>=0.990
