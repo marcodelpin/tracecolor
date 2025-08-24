@@ -136,12 +136,16 @@ class tracecolor:
     def _init_loguru_backend(self, enable_console, enable_file, enable_udp, 
                            log_dir, udp_host, udp_port, log_level, config_file):
         """Initialize with Loguru backend (preferred)"""
-        # Load external configuration if provided
+        # Auto-detect config file if not provided
+        if not config_file:
+            config_file = self._find_config_file()
+        
+        # Load external configuration if found or provided
         if config_file:
             config = self._load_config(config_file)
             enable_console = config.get("enable_console", enable_console)
             enable_file = config.get("enable_file", enable_file)
-            enable_udp = config.get("enable_udp", enable_udp)
+            enable_udp = config.get("use_udp", config.get("enable_udp", enable_udp))
             log_dir = config.get("log_dir", log_dir)
             udp_host = config.get("udp_host", udp_host)
             udp_port = config.get("udp_port", udp_port)
@@ -221,6 +225,17 @@ class tracecolor:
         # Bind the logger to this instance with unique ID
         self.logger = _loguru_logger.bind(name=self.name, logger_id=self._logger_id)
     
+    def _find_config_file(self) -> Optional[str]:
+        """Auto-detect standard config files in current directory"""
+        # Standard config file names in order of preference
+        standard_names = ["tracecolor.yml", "tracecolor.yaml", "tracecolor.json"]
+        
+        for name in standard_names:
+            if Path(name).exists():
+                return name
+        
+        return None
+    
     def _load_config(self, config_file: str) -> Dict[str, Any]:
         """Load configuration from JSON or YAML file"""
         config_path = Path(config_file)
@@ -232,9 +247,13 @@ class tracecolor:
                 if config_file.endswith(('.yaml', '.yml')):
                     if not YAML_AVAILABLE:
                         raise ImportError("PyYAML required for YAML config files")
-                    return yaml.safe_load(f).get('logging', {})
+                    config_data = yaml.safe_load(f)
+                    # Support both flat config and nested 'logging' wrapper
+                    return config_data.get('logging', config_data) if isinstance(config_data, dict) else {}
                 else:
-                    return json.load(f).get('logging', {})
+                    config_data = json.load(f)
+                    # Support both flat config and nested 'logging' wrapper
+                    return config_data.get('logging', config_data) if isinstance(config_data, dict) else {}
         except Exception:
             return {}
     

@@ -92,23 +92,48 @@ logger = create_enhanced_logger(__name__, enable_udp=True, enable_file=True, log
 ```
 
 ### External Configuration
-```python
-# Create logging_config.json
-{
-    "logging": {
-        "enable_console": true,
-        "enable_file": true,
-        "enable_udp": true,
-        "log_dir": "./logs",
-        "udp_host": "127.0.0.1",
-        "udp_port": 9999,
-        "log_level": "INFO"
-    }
-}
 
-# Use configuration file
+#### Automatic Config Detection
+Tracecolor automatically looks for standard config files in the current directory:
+1. `tracecolor.yml` (first priority)
+2. `tracecolor.yaml` (second priority)  
+3. `tracecolor.json` (third priority)
+
+```python
+# Just create tracecolor.yml in your project directory
 from tracecolor import tracecolor
-logger = tracecolor(__name__, config_file="logging_config.json")
+logger = tracecolor(__name__)  # Automatically finds and uses tracecolor.yml
+```
+
+#### Manual Config File
+```python
+# Create custom_config.yml
+logger = tracecolor(__name__, config_file="custom_config.yml")
+```
+
+#### Config File Formats
+**YAML (recommended):**
+```yaml
+log_level: TRACE
+use_udp: true
+udp_host: 127.0.0.1
+udp_port: 9999
+enable_console: true
+enable_file: true
+log_dir: "./logs"
+```
+
+**JSON:**
+```json
+{
+    "log_level": "TRACE",
+    "use_udp": true,
+    "udp_host": "127.0.0.1", 
+    "udp_port": 9999,
+    "enable_console": true,
+    "enable_file": true,
+    "log_dir": "./logs"
+}
 ```
 
 ## UDP Remote Monitoring
@@ -157,7 +182,11 @@ logger = tracecolor(__name__, enable_udp=True, enable_file=True, log_dir="logs")
 
 **Step 4**: Add external configuration as projects mature
 ```python
-logger = tracecolor(__name__, config_file="logging.json")
+# Automatic config detection (looks for tracecolor.yml, tracecolor.yaml, tracecolor.json)
+logger = tracecolor(__name__)  # Auto-detects config files
+
+# Or specify custom config file
+logger = tracecolor(__name__, config_file="custom_config.yml")
 ```
 
 ## Color Scheme

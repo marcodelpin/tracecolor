@@ -84,41 +84,33 @@ def enhanced_features_demo():
 
 def external_configuration_demo():
     """Demonstrate external configuration"""
-    if not ENHANCED_AVAILABLE:
-        return
-    
     print("\n=== EXTERNAL CONFIGURATION DEMO ===")
     
-    # Create sample configuration
-    config_content = '''
-{
-    "logging": {
-        "enable_console": true,
-        "enable_file": false,
-        "enable_udp": true,
-        "udp_host": "127.0.0.1",
-        "udp_port": 9999,
-        "log_level": "INFO"
-    }
-}
+    # Create automatic config file
+    config_content = '''log_level: TRACE
+use_udp: true
+udp_host: 127.0.0.1
+udp_port: 9999
+enable_console: true
+enable_file: false
 '''
     
-    config_file = Path("sample_config.json")
+    config_file = Path("tracecolor.yml")
     with open(config_file, "w") as f:
         f.write(config_content)
     
-    print(f"Created configuration file: {config_file}")
+    print(f"Created standard config file: {config_file}")
     
-    # Use external configuration
-    logger = create_enhanced_logger(__name__ + ".configured", config_file=str(config_file))
+    # Use automatic configuration detection
+    logger = tracecolor(__name__ + ".auto_configured")
     
-    logger.info("Logger configured from external JSON file")
-    logger.debug("This debug message may not appear (depends on log_level in config)")
-    logger.warning("Configuration-driven logging is now available")
+    logger.info("Logger auto-configured from tracecolor.yml")
+    logger.trace("Automatic config detection working")
+    logger.progress("Progress with auto-detected UDP config")
     
     # Cleanup
     config_file.unlink()
-    print("External configuration demo complete")
+    print("Automatic configuration demo complete")
 
 
 def migration_guide():
@@ -144,7 +136,7 @@ def migration_guide():
     print("1. Update to tracecolor 0.6.0 - all existing code works")
     print("2. Install enhanced dependencies: pip install tracecolor[enhanced]")
     print("3. Gradually replace tracecolor() with create_enhanced_logger() where needed")
-    print("4. Add external configuration files as projects mature")
+    print("4. Add tracecolor.yml for automatic configuration detection")
 
 
 def main():
