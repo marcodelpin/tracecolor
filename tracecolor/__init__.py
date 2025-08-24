@@ -20,7 +20,7 @@ Usage:
 
 from .tracecolor import tracecolor, create_enhanced_logger
 
-__version__ = "0.7.1"
+__version__ = "0.7.2"
 __author__ = "Marco Del Pin"
 __all__ = ['tracecolor', 'create_enhanced_logger']
 
