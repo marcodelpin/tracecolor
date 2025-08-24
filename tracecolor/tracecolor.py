@@ -239,18 +239,13 @@ class tracecolor:
             return {}
     
     def _console_filter(self, record):
-        """Filter for console output - handles progress rate limiting (Loguru backend)"""
+        """Filter for console output (Loguru backend)"""
         # Only process records from this logger instance
         if record["extra"].get("logger_id") != self._logger_id:
             return False
         
-        # Apply rate limiting only to PROGRESS level
-        if record["level"].name == "PROGRESS":
-            call_site = f"{record['file'].name}:{record['function']}:{record['line']}"
-            if not self.progress_limiter.should_log(call_site):
-                return False  # Skip this message
-        
-        return True  # Allow all other messages
+        # Rate limiting is now handled at source in progress() method
+        return True  # Allow all messages from this logger instance
 
     def trace(self, message, *args, **kwargs):
         """Log a message with severity 'TRACE'."""
@@ -258,7 +253,14 @@ class tracecolor:
 
     def progress(self, message, *args, **kwargs):
         """Log a message with severity 'PROGRESS' (for progress updates, rate-limited per call site)."""
-        # Rate limiting is handled via the console_filter
+        # Apply rate limiting at source, before sending to any sink
+        frame = inspect.currentframe().f_back
+        call_site = f"{frame.f_code.co_filename}:{frame.f_code.co_name}:{frame.f_lineno}"
+        
+        if not self.progress_limiter.should_log(call_site):
+            return  # Skip this message entirely
+        
+        # If allowed, send to all sinks
         self.logger.log("PROGRESS", message, *args, **kwargs)
     
     def debug(self, message, *args, **kwargs):

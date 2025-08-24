@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2025-08-24
+
+### Fixed
+- PROGRESS rate limiting now correctly applied to all output sinks (console, UDP, file)
+- Rate limiting logic moved upstream to prevent duplication and ensure consistency
+- Rate limiting properly enforces 1 message per second per call site
+
+### Changed
+- Rate limiting implementation moved from filter level to method level for better control
+
 ## [0.7.0] - 2025-08-24
 
 ### Added
