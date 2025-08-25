@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.9] - 2025-08-25
+
+### Added
+- Git commit message template to enforce clean commit standards
+- Project documentation updated to remove AI tool references
+
+### Changed
+- CLAUDE.md now describes project-specific development guidelines without AI references
+- All future commits will follow clean commit message standards
+
+## [0.7.8] - 2025-08-25
+
+### Added
+- Support for `.tracecolor` hidden configuration file (first priority)
+- Automatic format detection for `.tracecolor` file (TOML/YAML/JSON)
+- TOML configuration format support with structured sections
+- Support for `tracecolor.toml` as standard TOML config file
+- Built-in simple TOML parser as fallback when tomllib not available
+- Automatic conversion from TOML section structure to flat config
+
+### Changed
+- `.tracecolor` file now auto-detects format - can be TOML, YAML, or JSON
+- Config detection order: `.tracecolor` → `tracecolor.toml` → YAML → JSON
+- Updated documentation with TOML configuration examples and auto-detection feature
+
 ## [0.7.7] - 2025-08-24
 
 ### Added

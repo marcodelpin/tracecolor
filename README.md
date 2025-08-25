@@ -95,15 +95,19 @@ logger = create_enhanced_logger(__name__, enable_udp=True, enable_file=True, log
 
 #### Automatic Config Detection
 Tracecolor automatically looks for standard config files in the current directory:
-1. `tracecolor.yml` (first priority)
-2. `tracecolor.yaml` (second priority)  
-3. `tracecolor.json` (third priority)
+1. `.tracecolor` (auto-detects format: TOML/YAML/JSON - first priority)
+2. `tracecolor.toml` (TOML config)
+3. `tracecolor.yml` (YAML config)
+4. `tracecolor.yaml` (YAML alternate)  
+5. `tracecolor.json` (JSON config)
 
 ```python
-# Just create tracecolor.yml in your project directory
+# Just create .tracecolor in your project directory (any format)
 from tracecolor import tracecolor
-logger = tracecolor(__name__)  # Automatically finds and uses tracecolor.yml
+logger = tracecolor(__name__)  # Automatically finds and parses .tracecolor
 ```
+
+The `.tracecolor` file automatically detects its format, so you can use TOML, YAML, or JSON - whatever you prefer!
 
 #### Manual Config File
 ```python
@@ -112,7 +116,27 @@ logger = tracecolor(__name__, config_file="custom_config.yml")
 ```
 
 #### Config File Formats
-**YAML (recommended):**
+
+**`.tracecolor` supports all formats - auto-detected!**
+
+**TOML format:**
+```toml
+# TraceColor Configuration
+[udp]
+enabled = true
+host = "127.0.0.1"
+port = 9999
+
+[console]
+enabled = true
+level = "TRACE"
+
+[file]
+enabled = false
+dir = "./logs"
+```
+
+**YAML:**
 ```yaml
 log_level: TRACE
 use_udp: true
