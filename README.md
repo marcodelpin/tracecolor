@@ -11,11 +11,12 @@ Enhanced Python logger with colorized output, TRACE/PROGRESS levels, UDP monitor
 - Rate-limiting for PROGRESS messages (once per second per call site)
 - Simple and clean API
 
-### Enhanced Features (v0.7.6)
+### Enhanced Features
 - **Pure Loguru Backend**: Superior performance and features
 - **UDP Remote Monitoring**: Real-time log streaming with `tracecolor-monitor` command
 - **File Logging**: Automatic rotation, compression, and retention
-- **External Configuration**: JSON/YAML configuration files
+- **Automatic Configuration**: Auto-detects `.tracecolor`, `tracecolor.toml`, `tracecolor.yml`, `tracecolor.json`
+- **Multi-format Support**: TOML/YAML/JSON configuration with automatic format detection
 - **Multiple Destinations**: Simultaneous logging to console, file, and UDP
 - **Automatic Dependencies**: Loguru installed automatically with pip install
 - **Console Script**: `tracecolor-monitor` available globally after installation
