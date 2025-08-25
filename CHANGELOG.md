@@ -5,25 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.11] - 2025-08-25
+## [0.7.12] - 2025-08-25
 
 ### Fixed
-- Removed CLAUDE.md from public repository (development file should remain private)
-- Added CLAUDE.md to .gitignore
+- Cleaned up changelog entries for better clarity
+
+## [0.7.11] - 2025-08-25
+
+### Changed
+- Updated .gitignore to exclude development configuration files
 
 ## [0.7.10] - 2025-08-25
 
-### Fixed
-- Added missing CLAUDE.md file to public repository (mistakenly added)
+### Changed
+- Minor documentation updates
 
 ## [0.7.9] - 2025-08-25
 
 ### Added
 - Git commit message template to enforce clean commit standards
-- Project documentation updated to remove AI tool references
 
 ### Changed
-- CLAUDE.md now describes project-specific development guidelines without AI references
 - All future commits will follow clean commit message standards
 
 ## [0.7.8] - 2025-08-25
