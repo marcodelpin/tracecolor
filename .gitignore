@@ -163,3 +163,6 @@ logs/
 # Test outputs
 test_output/
 test_logs/
+
+# Development configuration
+CLAUDE.md
