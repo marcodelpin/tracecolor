@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.16] - 2025-08-27
+
+### Added
+- Comprehensive UDP blocking tests for Windows, WSL, and Linux
+- Unicode character handling tests across all platforms
+- Cross-platform performance verification tests
+- Multi-threading UDP safety tests
+
+### Verified
+- UDP is completely non-blocking on all platforms even without monitor
+- Unicode characters (emoji, CJK, Arabic, etc.) handled correctly everywhere
+- Performance is excellent: <0.01s for 100 messages with UDP enabled
+
 ## [0.7.15] - 2025-08-25
 
 ### Fixed
