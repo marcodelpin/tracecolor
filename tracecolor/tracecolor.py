@@ -60,7 +60,10 @@ class UDPSink:
             if isinstance(message, str):
                 # Remove trailing newline if present
                 msg = message.rstrip('\n')
-                self.sock.sendto(msg.encode('utf-8'), (self.host, self.port))
+                # Encode with error handling for special characters
+                # 'replace' will substitute problematic characters with ?
+                data = msg.encode('utf-8', errors='replace')
+                self.sock.sendto(data, (self.host, self.port))
         except (socket.error, BlockingIOError):
             # Ignore network errors silently to not disrupt logging
             pass

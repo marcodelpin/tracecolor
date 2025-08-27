@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.15] - 2025-08-25
+
+### Fixed
+- Improved UDP sink encoding to handle special Unicode characters
+- Added error='replace' to prevent encoding failures with emojis and special chars
+- UDP will now safely handle any character by replacing problematic ones
+
+### Added
+- Test script for Unicode/special character handling in UDP
+
 ## [0.7.14] - 2025-08-25
 
 ### Fixed
