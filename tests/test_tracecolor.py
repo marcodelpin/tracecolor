@@ -267,7 +267,8 @@ def test_json_sink_writes_valid_json(tmp_path):
 
 def test_otel_patcher_with_mock():
     """Test OTel patcher with mocked opentelemetry."""
-    import tracecolor.tracecolor as _tc_mod
+    import sys
+    _tc_mod = sys.modules['tracecolor.tracecolor']
     from unittest.mock import MagicMock
 
     mock_span = MagicMock()
