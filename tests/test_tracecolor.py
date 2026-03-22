@@ -267,8 +267,8 @@ def test_json_sink_writes_valid_json(tmp_path):
 
 def test_otel_patcher_with_mock():
     """Test OTel patcher with mocked opentelemetry."""
-    from unittest.mock import MagicMock, patch as _patch
-    from tracecolor.tracecolor import _otel_patcher
+    import tracecolor.tracecolor as _tc_mod
+    from unittest.mock import MagicMock
 
     mock_span = MagicMock()
     mock_ctx = MagicMock()
@@ -276,10 +276,19 @@ def test_otel_patcher_with_mock():
     mock_ctx.span_id = 0xFEDCBA0987654321
     mock_span.get_span_context.return_value = mock_ctx
 
-    with _patch("tracecolor.tracecolor._OTEL_AVAILABLE", True), \
-         _patch("tracecolor.tracecolor._otel_trace") as mock_trace:
-        mock_trace.get_current_span.return_value = mock_span
+    mock_trace = MagicMock()
+    mock_trace.get_current_span.return_value = mock_span
+
+    orig_available = _tc_mod._OTEL_AVAILABLE
+    orig_trace = getattr(_tc_mod, '_otel_trace', None)
+    try:
+        _tc_mod._OTEL_AVAILABLE = True
+        _tc_mod._otel_trace = mock_trace
         record = {"extra": {}}
-        _otel_patcher(record)
+        _tc_mod._otel_patcher(record)
         assert record["extra"]["otel_trace_id"] == "1234567890abcdef1234567890abcdef"
         assert record["extra"]["otel_span_id"] == "fedcba0987654321"
+    finally:
+        _tc_mod._OTEL_AVAILABLE = orig_available
+        if orig_trace is not None:
+            _tc_mod._otel_trace = orig_trace
