@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-03-22
+
+### Added
+- OpenTelemetry trace_id/span_id auto-injection into log records
+- Zero-config: auto-detects `opentelemetry-api` at import time
+- OTel fields available in JSON output and `{extra[otel_trace_id]}` format strings
+- Optional dependency: `uv pip install tracecolor[otel]`
+- **v1.0.0 milestone reached**: JSON + context binding + HTTP sink + OpenTelemetry
+
+## [0.9.5] - 2026-03-22
+
+### Added
+- HTTP sink for remote log aggregation (`enable_http=True`, `http_url="..."`)
+- HTTPSink class with batching (configurable batch_size), background flush thread
+- Supports Loki push API, Seq, or any generic JSON HTTP endpoint
+- Serialized JSON output via Loguru for HTTP sink
+
+## [0.9.0] - 2026-03-22
+
+### Added
+- `bind()` method for persistent context fields (request_id, user_id, etc.)
+- `context()` context manager for scoped correlation IDs
+- Bind chaining: `logger.bind(a=1).bind(b=2)`
+- Context fields appear in JSON output and {extra[key]} format strings
+
+## [0.8.0] - 2026-03-22
+
+### Added
+- JSON structured output mode via `enable_json=True` parameter
+- `json_file` parameter to specify output path for JSON logs
+- JSON section support in TOML config (`[json]` with `enabled` and `file`)
+- Dual output: JSON to file/stdout alongside colorized console
+- Loguru `serialize=True` for machine-parseable JSONL output
+
+### Changed
+- Refactored tracecolor.py into modules: rate_limiter, sinks, config, core
+- Moved test files from root to tests/ directory
+- Removed legacy setup.py, requirements.txt, environment.yml (pyproject.toml is SSOT)
+- CI workflows migrated from pip to uv
+- pyproject.toml black target-version updated to py38-py312
+
 ## [0.7.16] - 2025-08-27
 
 ### Added
@@ -212,7 +253,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rate-limited PROGRESS messages (1 per second per call site)
 - Support for Python 3.8+
 
-[Unreleased]: https://github.com/marcodelpin/tracecolor/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/marcodelpin/tracecolor/compare/v0.7.16...HEAD
+[0.7.16]: https://github.com/marcodelpin/tracecolor/compare/v0.7.15...v0.7.16
+[0.7.15]: https://github.com/marcodelpin/tracecolor/compare/v0.7.14...v0.7.15
+[0.7.14]: https://github.com/marcodelpin/tracecolor/compare/v0.7.13...v0.7.14
+[0.7.13]: https://github.com/marcodelpin/tracecolor/compare/v0.7.12...v0.7.13
+[0.7.12]: https://github.com/marcodelpin/tracecolor/compare/v0.7.11...v0.7.12
+[0.7.11]: https://github.com/marcodelpin/tracecolor/compare/v0.7.10...v0.7.11
+[0.7.10]: https://github.com/marcodelpin/tracecolor/compare/v0.7.9...v0.7.10
+[0.7.9]: https://github.com/marcodelpin/tracecolor/compare/v0.7.8...v0.7.9
+[0.7.8]: https://github.com/marcodelpin/tracecolor/compare/v0.7.7...v0.7.8
+[0.7.7]: https://github.com/marcodelpin/tracecolor/compare/v0.7.6...v0.7.7
+[0.7.6]: https://github.com/marcodelpin/tracecolor/compare/v0.7.5...v0.7.6
+[0.7.5]: https://github.com/marcodelpin/tracecolor/compare/v0.7.4...v0.7.5
+[0.7.4]: https://github.com/marcodelpin/tracecolor/compare/v0.7.3...v0.7.4
+[0.7.3]: https://github.com/marcodelpin/tracecolor/compare/v0.7.2...v0.7.3
+[0.7.2]: https://github.com/marcodelpin/tracecolor/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/marcodelpin/tracecolor/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/marcodelpin/tracecolor/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/marcodelpin/tracecolor/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/marcodelpin/tracecolor/compare/v0.5.0...v0.6.0

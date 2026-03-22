@@ -25,6 +25,10 @@ Enhanced Python logger with colorized output, TRACE/PROGRESS levels, UDP monitor
 ## Installation
 
 ```bash
+# Recommended
+uv pip install tracecolor
+
+# Or with pip
 pip install tracecolor
 ```
 
@@ -35,10 +39,10 @@ This automatically installs:
 ### Optional Dependencies
 ```bash
 # For YAML configuration support
-pip install tracecolor[yaml]
+uv pip install tracecolor[yaml]
 
 # For development
-pip install tracecolor[dev]
+uv pip install tracecolor[dev]
 ```
 
 ## Usage
@@ -187,12 +191,12 @@ The monitor displays formatted output with timestamps, log levels, and messages 
 
 **Step 1**: Update package (existing code continues to work)
 ```bash
-pip install --upgrade tracecolor
+uv pip install --upgrade tracecolor
 ```
 
 **Step 2**: Install enhanced dependencies (optional)
 ```bash
-pip install tracecolor[enhanced]
+uv pip install tracecolor[enhanced]
 ```
 
 **Step 3**: Optionally enable enhanced features where needed

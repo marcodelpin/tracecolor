@@ -5,7 +5,7 @@
 When you install tracecolor from PyPI, the monitor is automatically available as a command-line tool:
 
 ```bash
-pip install tracecolor
+uv pip install tracecolor
 ```
 
 ## Starting the Monitor
@@ -125,7 +125,7 @@ tracecolor-monitor --port 9003
 ## Troubleshooting
 
 ### "Command not found"
-- Ensure tracecolor is installed: `pip show tracecolor`
+- Ensure tracecolor is installed: `uv pip show tracecolor`
 - Check PATH: `echo $PATH`
 - Use Python module: `python -m tracecolor.monitor`
 
@@ -151,7 +151,7 @@ tracecolor-monitor --port 9003
 services:
   log-monitor:
     image: python:3.10
-    command: pip install tracecolor && tracecolor-monitor --host 0.0.0.0
+    command: uv pip install tracecolor && tracecolor-monitor --host 0.0.0.0
     ports:
       - "9999:9999/udp"
 ```

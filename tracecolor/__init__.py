@@ -7,6 +7,10 @@ Features:
 - Rate-limited progress messages
 - UDP remote monitoring
 - File logging with rotation
+- JSON structured output (serialize mode) for ELK/Loki/Grafana
+- Context binding and correlation IDs (bind/context)
+- HTTP sink for remote log aggregation (Loki, Seq, generic)
+- OpenTelemetry trace_id/span_id auto-injection
 - TOML/YAML/JSON configuration support with automatic detection
 
 Usage:
@@ -20,7 +24,7 @@ Usage:
 
 from .tracecolor import tracecolor, create_enhanced_logger
 
-__version__ = "0.7.16"
+__version__ = "1.0.0"
 __author__ = "Marco Del Pin"
 __all__ = ['tracecolor', 'create_enhanced_logger']
 

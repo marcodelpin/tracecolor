@@ -166,3 +166,9 @@ test_logs/
 
 # Development configuration
 CLAUDE.md
+
+# Temp artifacts
+.tmp/
+
+# uv
+uv.lock

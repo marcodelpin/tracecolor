@@ -24,7 +24,7 @@ We use GitHub to host code, to track issues and feature requests, as well as acc
 
 1. Update the README.md with details of changes if applicable
 2. Update examples if needed
-3. The PR should work for Python 3.7 and newer
+3. The PR should work for Python 3.8 and newer
 4. Ensure all tests pass
 
 ## Testing
